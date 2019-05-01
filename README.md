@@ -1,6 +1,5 @@
 # visual-diff
 [![Build status][ci-image]][ci-url]
-[![Dependency Status][dependencies-image]][dependencies-url]
 
 A visual difference utility using Mocha, Chai, Puppeteer, and PixelMatch.
 

@@ -1,7 +1,7 @@
 {
   "name": "visual-diff",
   "version": "0.0.1",
-  "description": "Mocha util for running visual diffs",
+  "description": "Visual difference utility using Mocha, Chai, Puppeteer, and PixelMatch",
   "repository": "https://github.com/BrightspaceUI/visual-diff.git",
   "main": "visual-diff.js",
   "scripts": {

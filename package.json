@@ -6,7 +6,9 @@
   "main": "visual-diff.js",
   "scripts": {
     "lint": "eslint . --ext .js,.html",
-    "test": "npm run lint"
+    "test": "npm run lint",
+    "test:diff": "mocha './test/**/*.visual-diff.js' -t 10000",
+    "test:diff:golden": "mocha './test/**/*.visual-diff.js' -t 10000 --golden"
   },
   "files": [
     "file-helper.js",

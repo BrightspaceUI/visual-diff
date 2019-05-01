@@ -25,26 +25,13 @@ Create an `.html` file containing the element to be tested.
 <html lang="en">
   <head>
     <title>d2l-button-icon</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="../styles.css" type="text/css">
-    <style>
-      html { font-size: 20px; }
-      body { padding: 30px; }
-      .visual-diff { margin-bottom: 30px; }
-    </style>
-    <script src="../../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+    <script src=".../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
     <script type="module">
-      import '../../components/colors/colors.js';
-      import '../../components/typography/typography.js';
-      import '../../components/button/button-icon.js';
+      import '.../button-icon.js';
     </script>
   </head>
-  <body class="d2l-typography">
-    <div class="visual-diff">
-      <d2l-button-icon id="normal" icon="d2l-tier1:gear" text="Icon Button"></d2l-button-icon>
-    </div>
+  <body>
+    <d2l-button-icon id="normal" icon="d2l-tier1:gear" text="Icon Button"></d2l-button-icon>
   </body>
 </html>
 ```
@@ -77,7 +64,7 @@ describe('d2l-button-icon', function() {
     page = await browser.newPage();
     await page.setViewport({width: 800, height: 800, deviceScaleFactor: 2});
     await page.goto(
-      `${visualDiff.getBaseUrl()}/test/button/button-icon.visual-diff.html`,
+      `${visualDiff.getBaseUrl()}/.../button-icon.visual-diff.html`,
       {waitUntil: ['networkidle0', 'load']}
     );
     await page.bringToFront();

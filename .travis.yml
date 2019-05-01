@@ -1,0 +1,16 @@
+language: node_js
+node_js: node
+addons:
+  chrome: stable
+script:
+- npm run lint
+- |
+  if [ $TRAVIS_PULL_REQUEST != false ] && [ $TRAVIS_SECURE_ENV_VARS == true ]; then
+    npm run test:diff || travis_terminate 1;
+  fi
+env:
+  global:
+  # S3ID
+  - secure: x6P5ZQoTT86WXrz/nC5j2BxkzbEkryI9zuu2QrELkTfAYMi1nI7dhR1oe6DQq/+Gu70I7avpvWVUwFXtEfDNHdrCdaP8iJhyqwaaFeq7zsBs8ErqCvNj2IagRxQ6hzVkKVnkYgHDrFfJSN7oarkgQclMLPOGn6rvhzCArExEkGfYYc03iyLPyZaH6i37N7rMu178MUE/YJaLgNG9ts51Qb/vCo8E4YDZYKOs3PR2VVPcK/5JAtTLzvph2wLOtyObVJ3Bk5FWcbxEqh1wBWLC2WSNmzHOAr4PMeEY4GTWJQdwEHIX1DDZaHIWPIbsFAG5kM6c03mZ+TPgure/MjpQrt6e11hulBeNTWQSW8tjjpuUchSIh5nc9vmB6FHOj8/KxsygHBQV5MUxGDg+Ze1SoB/+pl/3lp0jSBaXNATeaj1lbUzjPc1Da2hdT4oK2QZSnt1ftbyc3a2GCr3FZgUP/Ly7BepFs/wJMdDrDbAH+wQpLg8tEvPhkOoqn7B/JWZIo+TiyEzQMUKvAeT9x+YMLwGileoiO5Yshx8gBPbX/VIpL5uJIK5tca42e5F6CkAXcA9M5CqD8Ms595AixG3HXtZmPN8UTLuipYhFFreSUkwajilIzTnIfyHnY6GfB7WjxC1qZacuGCLfFhTiYaUvxipBthIluWb+7UEqJhoSBvI=
+  # S3KEY
+  - secure: 4uIV+02asr8X+V0ktF1nVhTuOUK60xYe7ABzNLyMlfGGWBPTOo8gnJ17LI3nZbdbUKfq4jERzEQVXkjN6HLg/VS5T6RT9nrju4BhTqH9Ql48N9tuYk0v/TKDTClVkyRaSUGfAHOc/ea3YgwsmRr4+uomPobE8CiJp00beuR13CyB5gjeIjwhzldW6St6eFOZovRtt/CQg7L3waW46DQd3ioM5otbNrGwYFvm46xiBEtYy1HUf7jWNv+4fNOUvlRCJKGdMKL+mh2LSyuZhDi9seoIZLPtIP9lz2dqxTlXYt1pbJBrvFwSLoybXWiC3ud+jH/Cd5e66n83AOYh+OBHqTMyn59rSeorA+RwXQ9/wiWbFnEi2trwGxpnN9Mxw64eXjyTNfDRzP1fpDRBb8OzhKcsyicKq8WMpKFSiLH2PqTkdx9PK5Ycyrkw/aHiY385XBsQK3g0Uze+SsYuwuO7DFRbrFzTQ8TpFOLsn5TA9OX9nYNSiYwS1NUufMioQIjZpUlxR9Zd+9QlwB1MJH0eC5oYBGjrGQQAQM0160YnIuzCwQK8m/GtCjNUkWZP1aoXi6ja2iH49Fmdqq6tOz6F+ZBb3TIDGsyutoF4SnSc6qNh2s6EMc1Y9M9bmda9Z+89j/CF6gZYAo6kXlKGYsM8I1p4H+4k1Vq7UP+jLFBYxdI=

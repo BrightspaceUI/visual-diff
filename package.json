@@ -8,6 +8,11 @@
     "lint": "eslint . --ext .js,.html",
     "test": "npm run lint"
   },
+  "files": [
+    "file-helper.js",
+    "s3-helper.js",
+    "visual-diff.js"
+  ],
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "devDependencies": {

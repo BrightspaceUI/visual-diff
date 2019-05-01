@@ -1,7 +1,0 @@
-node_modules
-.editorconfig
-.eslintrc.json
-.gitattributes
-.gitignore
-.npmignore
-.travis.yml

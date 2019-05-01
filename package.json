@@ -1,0 +1,29 @@
+{
+  "name": "visual-diff",
+  "version": "0.0.1",
+  "description": "Mocha util for running visual diffs",
+  "repository": "https://github.com/BrightspaceUI/visual-diff.git",
+  "main": "visual-diff.js",
+  "scripts": {
+    "lint": "eslint . --ext .js,.html",
+    "test": "npm run lint"
+  },
+  "author": "D2L Corporation",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "babel-eslint": "latest",
+    "eslint": "latest",
+    "eslint-config-brightspace": "latest",
+    "eslint-plugin-html": "latest",
+    "eslint-plugin-lit": "latest"
+  },
+  "dependencies": {
+    "aws-sdk": "latest",
+    "chai": "latest",
+    "chalk": "latest",
+    "mocha": "latest",
+    "pixelmatch": "latest",
+    "polyserve": "latest",
+    "puppeteer": "latest"
+  }
+}

@@ -55,7 +55,7 @@ Create an `.html` file containing the element to be tested.
 Create the visual-diff tests. Provide a ***unique*** name and the location where screenshots are saved. Use the `VisualDiff` context to navigate, take screenshots, and compare. Append the `--golden` arg to generate goldens.
 
 ***Tips:***
-* use `deviceScaleFactor` to get for `dpr` (device-pixel-ratio), especially on retina display
+* use `deviceScaleFactor` to account for `dpr` (device-pixel-ratio), especially on retina display
 * run diffs with a different view-port size for media queries; avoid duplicating
 * bring page to front when testing focus (i.e. activate the browser tab)
 * reset focus between tests if not reloading the page
@@ -101,7 +101,7 @@ First, generate goldens using `--golden` arg before making changes.
 
 ```json
 "scripts": {
-	"test:diff:golden": "mocha './test/**/*.visual-diff.js' -t 10000 --golden"
+  "test:diff:golden": "mocha './test/**/*.visual-diff.js' -t 10000 --golden"
 },
 ```
 
@@ -109,12 +109,12 @@ Make desired code changes, then run the tests to compare.
 
 ```json
 "scripts": {
-	"test:diff": "mocha './test/**/*.visual-diff.js' -t 10000"
+  "test:diff": "mocha './test/**/*.visual-diff.js' -t 10000"
 },
 ```
 
 ***Tips:***
-* specify a longer Mocha timeout (while a screenshot is worth a 1000 tests, each screenshot is slower compared to a typical typical unit test)
+* specify a longer Mocha timeout (while a screenshot is worth a 1000 tests, each screenshot is slower compared to a typical  unit test)
 * use Mocha's grep option to run a subset (i.e. `npm run test:diff -- -g some-pattern`)
 
 ### Running in CI

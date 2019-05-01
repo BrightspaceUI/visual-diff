@@ -1,3 +1,4 @@
+const expect = require('chai').expect;
 const puppeteer = require('puppeteer');
 const VisualDiff = require('../visual-diff.js');
 
@@ -17,9 +18,30 @@ describe('visual-diff', function() {
 
 	after(() => browser.close());
 
-	it('test-element', async function() {
-		const rect = await visualDiff.getRect(page, 'div');
+	it('element-matches', async function() {
+		const rect = await visualDiff.getRect(page, '#matches');
 		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
+	});
+
+	it('element-different', async function() {
+		const isGolden = process.argv.includes('--golden');
+		if (!isGolden) {
+			await page.evaluate(() => {
+				const elem = document.querySelector('#different');
+				elem.style.borderColor = 'black';
+				elem.textContent = 'Different Text';
+			});
+		}
+		const rect = await visualDiff.getRect(page, '#different');
+		let different = false;
+		try {
+			await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
+		} catch (ex) {
+			different = true;
+		}
+		if (!isGolden) {
+			expect(different, 'current and golden images to be different').equal(true);
+		}
 	});
 
 });

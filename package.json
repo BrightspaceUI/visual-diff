@@ -1,8 +1,11 @@
 {
-  "name": "visual-diff",
+  "name": "@brightspace-ui/visual-diff",
   "version": "0.0.1",
   "description": "Visual difference utility using Mocha, Chai, Puppeteer, and PixelMatch",
   "repository": "https://github.com/BrightspaceUI/visual-diff.git",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "visual-diff.js",
   "scripts": {
     "lint": "eslint . --ext .js,.html",

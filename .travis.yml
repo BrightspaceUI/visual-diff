@@ -8,6 +8,16 @@ script:
   if [ $TRAVIS_PULL_REQUEST != false ] && [ $TRAVIS_SECURE_ENV_VARS == true ]; then
     npm run test:diff || travis_terminate 1;
   fi
+deploy:
+  provider: npm
+  email: d2ltravisdeploy@d2l.com
+  api_key:
+    # d2l-travis-deploy
+    secure: 2J40avxYogjORV1pzFTygTTZp3RfUshUOi38o/eE2oBe0AWaKHFD43mWA1ykrdtRH7YH0J0LJGczi2M9et0IT7e8nlO6h1pEcuLNiQGIXBM7iFoirFiP5oE93L/+S/HlEHt3eWb0NrjPV0051oaKME5qZBZb3/DssI2SkEwSM0I8zVF/rIw0HY0njOE2xiUnJVyni4aTrbbMAHZeyeuiq8brpLXyVSCMpyzhSCV7DgeXS9tcVafBeJRZEjxbD8ywki9RtxIAb+lQyTGUKfRzHlVHwMEKnEykWQSKTvdjxGlfInybZeJqb0GVWsYh5ZwEC/dyaRr22/c7AX2DwgTCjA6aqxAD0CuIDUgepB70is8eR35gMt3YTdYy3gcuNOpwTlAYXUPVUgNknX4e26eL4/ReHl7L7orEE/bmtQwITpDVuLn886BQe1qYO9zPmLoogZ0Ta7YtAbyu9SAZYenHqoWu2E0Y2OoIzN5ORVE+KVWnWy+oW7YhCP0GQSUxN4mnX+FlC43AYVrfB5wpUtk+uJD9MmNPoFgxvgICB5gkMuBM/Kr44GHnuAi+PLPmbk022ib4KC8blqFbqFkEHH0QDypGcayImSXpmiCvVzN3nJrRVeFwIUa0y0KSuRXq7QxjmUZ3qBIOXDa1QrEmfw1askXBZd2ucia+DaO2Cf7a548=
+  on:
+    tags: true
+    repo: BrightspaceUI/visual-diff
+    all_branches: true
 env:
   global:
   # S3ID

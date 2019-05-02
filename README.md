@@ -9,7 +9,10 @@ A visual difference utility using Mocha, Chai, Puppeteer, and PixelMatch.
 
 ## Installation
 
-TODO
+Install `visual-diff`.
+```shell
+npm i @brightspace-ui/visual-diff
+```
 
 ## Usage
 

@@ -36,6 +36,7 @@ class VisualDiff {
 		this._results = [];
 		this._fs = new FileHelper(name, `${dir ? dir : process.cwd()}/screenshots`, options ? options.upload : null, _isCI);
 		this._dpr = options && options.dpr ? options.dpr : 2;
+		this._tolerance = options && options.tolerance ? options.tolerance : 0;
 
 		let currentTarget, goldenTarget;
 
@@ -124,7 +125,7 @@ class VisualDiff {
 		if (goldenImage && currentImage.width === goldenImage.width && currentImage.height === goldenImage.height) {
 			const diff = new PNG({width: currentImage.width, height: currentImage.height});
 			pixelsDiff = pixelmatch(
-				currentImage.data, goldenImage.data, diff.data, currentImage.width, currentImage.height, {threshold: 0.1}
+				currentImage.data, goldenImage.data, diff.data, currentImage.width, currentImage.height, {threshold: this._tolerance}
 			);
 			if (pixelsDiff !== 0) await this._fs.writeCurrentStream(`${name}-diff`, diff.pack());
 		}
@@ -175,7 +176,7 @@ class VisualDiff {
 		} else {
 			const diff = new PNG({width: currentImage.width, height: currentImage.height});
 			const pixelsDiff = pixelmatch(
-				currentImage.data, goldenImage.data, diff.data, currentImage.width, currentImage.height, {threshold: 0.1}
+				currentImage.data, goldenImage.data, diff.data, currentImage.width, currentImage.height, {threshold: this._tolerance}
 			);
 			if (pixelsDiff !== 0) updateGolden = true;
 		}

@@ -1,6 +1,6 @@
 {
   "name": "@brightspace-ui/visual-diff",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Visual difference utility using Mocha, Chai, Puppeteer, and PixelMatch",
   "repository": "https://github.com/BrightspaceUI/visual-diff.git",
   "publishConfig": {
@@ -21,19 +21,24 @@
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "devDependencies": {
-    "babel-eslint": "latest",
-    "eslint": "latest",
-    "eslint-config-brightspace": "latest",
-    "eslint-plugin-html": "latest",
-    "eslint-plugin-lit": "latest"
+    "babel-eslint": "^10",
+    "eslint": "^6",
+    "eslint-config-brightspace": "^0.6",
+    "eslint-plugin-html": "^6",
+    "eslint-plugin-lit": "^1",
+    "eslint-plugin-sort-class-members": "^1",
+    "mocha": "^6",
+    "puppeteer": "^1"
+  },
+  "peerDependencies": {
+    "mocha": "^6",
+    "puppeteer": "^1"
   },
   "dependencies": {
-    "aws-sdk": "latest",
-    "chai": "latest",
-    "chalk": "latest",
-    "mocha": "latest",
-    "pixelmatch": "latest",
-    "polyserve": "latest",
-    "puppeteer": "latest"
+    "aws-sdk": "^2",
+    "chai": "^4",
+    "chalk": "^2.4.2",
+    "pixelmatch": "^5",
+    "polyserve": "^0.27.15"
   }
 }

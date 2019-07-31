@@ -51,7 +51,7 @@ class VisualDiff {
 			process.stdout.write(`\n${chalk.green('    Current:')} ${currentTarget}`);
 			process.stdout.write(`\n${chalk.hex('#DCDCAA')('    Golden:')} ${goldenTarget}\n\n`);
 
-			if (!_isGoldenUpdate) {
+			if (!_isGoldenUpdate && !_isCI) {
 				// fail fast if no goldens
 				const goldenFiles = await this._fs.getGoldenFiles();
 				if (goldenFiles.length === 0) {

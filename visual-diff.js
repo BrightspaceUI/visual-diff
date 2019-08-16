@@ -7,7 +7,6 @@ const FileHelper = require('./file-helper.js');
 
 const _isGoldenUpdate = process.argv.includes('--golden') ? process.argv.includes('--golden') : false;
 const _isCI = process.env['CI'] ? true : false;
-//const _isCI = true;
 const _serverOptions = {npm: true, moduleResolution: 'node'};
 
 let _server;
@@ -112,7 +111,6 @@ class VisualDiff {
 		const info = Object.assign({path: this._fs.getCurrentPath(name)}, options);
 
 		await page.screenshot(info);
-		await this._fs.putCurrentFile(name);
 
 		if (_isGoldenUpdate) return this._updateGolden(name);
 		else await this._compare(name);
@@ -245,7 +243,7 @@ class VisualDiff {
 
 			let goldenUrl = this._fs.getGoldenUrl(result.name);
 			// the follow assumes golden directory is exactly ../../ relative to report
-			goldenUrl = goldenUrl.startsWith('https://s3.') ? goldenUrl : `../../${goldenUrl}`;
+			goldenUrl = `../../${goldenUrl}`;
 
 			return `
 				<h2>${result.name}</h2>

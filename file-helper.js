@@ -48,11 +48,7 @@ class FileHelper {
 	}
 
 	async getGoldenFiles() {
-		if (this.isCI) {
-			return await this.s3.getGoldenFileList();
-		} else {
-			return fs.readdirSync(this.goldenDir);
-		}
+		return fs.readdirSync(this.goldenDir);
 	}
 
 	getCurrentPath(name) {
@@ -66,11 +62,11 @@ class FileHelper {
 	}
 
 	getCurrentTarget() {
-		return this.isCI ? this.s3.currentConfig.target : this.currentDir;
+		return this.currentDir;
 	}
 
 	getGoldenTarget() {
-		return this.isCI ? this.s3.goldenConfig.target : this.goldenDir;
+		return this.goldenDir;
 	}
 
 	getCurrentImage(name) {
@@ -93,9 +89,6 @@ class FileHelper {
 
 	async hasGoldenFile(name) {
 		const goldenPath = this.getGoldenPath(name);
-		if (this.isCI) {
-			await this.s3.getGoldenFile(goldenPath);
-		}
 		return fs.existsSync(goldenPath);
 	}
 
@@ -107,26 +100,14 @@ class FileHelper {
 		});
 	}
 
-	async putCurrentFile(name) {
-		if (!this.isCI) return;
-		await this.s3.uploadCurrentFile(this.getCurrentPath(name));
-	}
-
-	async putGoldenFile(name) {
-		if (!this.isCI) return;
-		await this.s3.uploadGoldenFile(this.getGoldenPath(name));
-	}
-
 	async removeGoldenFile(name) {
 		const path = this.getGoldenPath(name);
-		if (this.isCI) await this.s3.deleteGoldenFile(path);
 		if (fs.existsSync(path)) fs.unlinkSync(path);
 	}
 
 	async updateGolden(name) {
 		if (!fs.existsSync(this.getCurrentPath(name))) return false;
 		fs.copyFileSync(this.getCurrentPath(name), this.getGoldenPath(name));
-		await this.putGoldenFile(name);
 		return true;
 	}
 
@@ -138,15 +119,13 @@ class FileHelper {
 	getCurrentUrl(name) {
 		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
 		name = `${this.formatName(name)}${ext}`;
-		if (!this.isCI) return name;
-		return this.s3.getCurrentObjectUrl(name);
+		return name;
 	}
 
 	getGoldenUrl(name) {
 		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
 		name = `${this.formatName(name)}${ext}`;
-		if (!this.isCI) return `${this.goldenSubDir}/${name}`;
-		return this.s3.getGoldenObjectUrl(name);
+		return `${this.goldenSubDir}/${name}`;
 	}
 
 	async writeCurrentFile(name, content) {
@@ -167,7 +146,6 @@ class FileHelper {
 			return promise;
 		};
 		await writeStream();
-		if (this.isCI) await this.s3.uploadCurrentFile(filePath);
 	}
 
 }

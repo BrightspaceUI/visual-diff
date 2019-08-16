@@ -146,6 +146,7 @@ class FileHelper {
 			return promise;
 		};
 		await writeStream();
+		if (this.isCI) await this.s3.uploadCurrentFile(filePath);
 	}
 
 }

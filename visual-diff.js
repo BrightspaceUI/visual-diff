@@ -7,6 +7,7 @@ const FileHelper = require('./file-helper.js');
 
 const _isGoldenUpdate = process.argv.includes('--golden') ? process.argv.includes('--golden') : false;
 const _isCI = process.env['CI'] ? true : false;
+_isCI = false;
 const _serverOptions = {npm: true, moduleResolution: 'node'};
 
 let _server;

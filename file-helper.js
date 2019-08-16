@@ -12,7 +12,7 @@ class FileHelper {
 		this.name = name;
 		this.rootDir = rootDir;
 		this.currentSubDir = `current/${name}`;
-		this.goldenSubDir = this.isCI2 ? `golden/ci/${name}` : `golden/${name}`;
+		this.goldenSubDir = `golden/ci/${name}`;
 		this.currentDir = `${rootDir}/${this.currentSubDir}`;
 		this.goldenDir = `${rootDir}/${this.goldenSubDir}`;
 

@@ -7,12 +7,11 @@ class FileHelper {
 	constructor(name, rootDir, s3Config, isCI) {
 		this.s3 = new S3Helper(name, s3Config, isCI);
 		this.isCI = isCI;
-		this.isCI2 = true;
 
 		this.name = name;
 		this.rootDir = rootDir;
 		this.currentSubDir = `current/${name}`;
-		this.goldenSubDir = this.isCI2 ? `ci/golden/${name}` : `golden/${name}`;
+		this.goldenSubDir = this.isCI ? `ci/golden/${name}` : `golden/${name}`;
 		this.currentDir = `${rootDir}/${this.currentSubDir}`;
 		this.goldenDir = `${rootDir}/${this.goldenSubDir}`;
 

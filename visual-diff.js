@@ -6,8 +6,7 @@ const polyserve = require('polyserve');
 const FileHelper = require('./file-helper.js');
 
 const _isGoldenUpdate = process.argv.includes('--golden') ? process.argv.includes('--golden') : false;
-let _isCI = process.env['CI'] ? true : false;
-_isCI = false;
+const _isCI = process.env['CI'] ? true : false;
 const _serverOptions = {npm: true, moduleResolution: 'node'};
 
 let _server;

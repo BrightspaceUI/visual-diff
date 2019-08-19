@@ -121,10 +121,12 @@ class FileHelper {
 		return `${dir}/${name}`;
 	}
 
-	getGoldenUrl(name) {
+	getGoldenUrl(name, baseUrl) {
 		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
 		name = `${this.formatName(name)}${ext}`;
-		return `${this.goldenSubDir}/${name}`;
+		const rootDir = baseUrl.replace('/home/travis/build', 'https://raw.githubusercontent.com/');
+		const dir = `${rootDir}/${process.env.TRAVIS_BRANCH}`;
+		return `${dir}/${this.goldenSubDir}/${name}`;
 	}
 
 	async writeCurrentFile(name, content) {

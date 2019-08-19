@@ -117,7 +117,8 @@ class FileHelper {
 	getCurrentUrl(name) {
 		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
 		name = `${this.formatName(name)}${ext}`;
-		return name;
+		const dir = this.currentDir.replace('/home/travis/build', 'https://raw.githubusercontent.com/');
+		return `${dir}/${name}`;
 	}
 
 	getGoldenUrl(name) {

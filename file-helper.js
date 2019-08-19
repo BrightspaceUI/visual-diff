@@ -16,8 +16,6 @@ class FileHelper {
 		this.goldenDir = `${rootDir}/${this.goldenSubDir}`;
 
 		if (!fs.existsSync(this.rootDir)) fs.mkdirSync(this.rootDir);
-
-		if (this.isCI) this.cleanDir(this.goldenDir);
 		this.makeDir(rootDir, this.goldenSubDir);
 
 		this.cleanDir(this.currentDir);

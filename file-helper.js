@@ -136,8 +136,8 @@ class FileHelper {
 		if (fs.existsSync(`${rootDirBranch}/${name}`)) return `${rootDirBranch}/${name}`;
 
 		// else return master url
-		const rootDirBranch = rootDir.replace(process.env.TRAVIS_REPO_SLUG, `${process.env.TRAVIS_REPO_SLUG}/master`);
-		return `${rootDir}/${name}`;
+		const rootDirMaster = rootDir.replace(process.env.TRAVIS_REPO_SLUG, `${process.env.TRAVIS_REPO_SLUG}/master`);
+		return `${rootDirMaster}/${name}`;
 	}
 
 	async writeCurrentFile(name, content) {

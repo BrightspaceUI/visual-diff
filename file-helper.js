@@ -129,8 +129,9 @@ class FileHelper {
 	getGoldenUrl(name) {
 		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
 		name = `${this.formatName(name)}${ext}`;
-		const rootDir = this.goldenDir.replace('/home/travis/build', 'https://raw.githubusercontent.com');
-		console.log('repo ' + process.env.TRAVIS_REPO_SLUG);
+		let rootDir = this.goldenDir.replace('/home/travis/build', 'https://raw.githubusercontent.com');
+		rootDir = rootDir.replace(process.env.TRAVIS_REPO_SLUG, `${process.env.TRAVIS_REPO_SLUG}/${process.env.TRAVIS_PULL_REQUEST_BRANCH}`);
+		console.log('repo ' + process.env.TRAVIS_PULL_REQUEST_BRANCH);
 		return `${rootDir}/${name}`;
 	}
 

@@ -45,6 +45,8 @@ class VisualDiff {
 			if (!_isCI) {
 				currentTarget = currentTarget.replace(process.cwd(), '');
 				goldenTarget = goldenTarget.replace(process.cwd(), '');
+			} else {
+				goldenTarget = goldenTarget.replace('/home/travis/build/', '');
 			}
 
 			process.stdout.write(`\n${chalk.green('    Current:')} ${currentTarget}`);
@@ -242,9 +244,7 @@ class VisualDiff {
 		};
 		const diffHtml = results.map((result) => {
 
-			const goldenUrl = this._fs.getGoldenUrl(result.name, this.getBaseUrl());
-			// the follow assumes golden directory is exactly ../../ relative to report
-			// goldenUrl = `../../${goldenUrl}`;
+			const goldenUrl = this._fs.getGoldenUrl(result.name);
 
 			return `
 				<h2>${result.name}</h2>

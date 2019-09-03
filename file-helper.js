@@ -60,7 +60,7 @@ class FileHelper {
 	}
 
 	getCurrentTarget() {
-		return this.currentDir;
+		return this.isCI ? this.s3.currentConfig.target : this.currentDir;
 	}
 
 	getGoldenTarget() {
@@ -98,6 +98,11 @@ class FileHelper {
 		});
 	}
 
+	async putCurrentFile(name) {
+		if (!this.isCI) return;
+		await this.s3.uploadCurrentFile(this.getCurrentPath(name));
+	}
+
 	async removeGoldenFile(name) {
 		const path = this.getGoldenPath(name);
 		if (fs.existsSync(path)) fs.unlinkSync(path);
@@ -117,16 +122,17 @@ class FileHelper {
 	getCurrentUrl(name) {
 		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
 		name = `${this.formatName(name)}${ext}`;
-		const dir = this.currentDir.replace('/home/travis/build', 'https://raw.githubusercontent.com/');
-		return `${dir}/${name}`;
+		if (!this.isCI) return name;
+
+		return this.s3.getCurrentObjectUrl(name);
 	}
 
-	getGoldenUrl(name, baseUrl) {
+	getGoldenUrl(name) {
 		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
 		name = `${this.formatName(name)}${ext}`;
-		const rootDir = baseUrl.replace('/home/travis/build', 'https://raw.githubusercontent.com/');
-		const dir = `${rootDir}/${process.env.TRAVIS_BRANCH}`;
-		return `${dir}/${this.goldenSubDir}/${name}`;
+		const rootDir = this.currentDir.replace('/home/travis/build', 'https://raw.githubusercontent.com');
+		console.log('root dir ' + rootDir + ' name ' + name);
+		return `${rootDir}/${name}`;
 	}
 
 	async writeCurrentFile(name, content) {

@@ -129,9 +129,14 @@ class FileHelper {
 	getGoldenUrl(name) {
 		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
 		name = `${this.formatName(name)}${ext}`;
-		let rootDir = this.goldenDir.replace('/home/travis/build', 'https://raw.githubusercontent.com');
-		rootDir = rootDir.replace(process.env.TRAVIS_REPO_SLUG, `${process.env.TRAVIS_REPO_SLUG}/${process.env.TRAVIS_PULL_REQUEST_BRANCH}`);
-		console.log('repo ' + process.env.TRAVIS_PULL_REQUEST_BRANCH);
+		const rootDir = this.goldenDir.replace('/home/travis/build', 'https://raw.githubusercontent.com');
+		const rootDirBranch = rootDir.replace(process.env.TRAVIS_REPO_SLUG, `${process.env.TRAVIS_REPO_SLUG}/${process.env.TRAVIS_PULL_REQUEST_BRANCH}`);
+
+		// if golden was updated in this branch, return that url
+		if (fs.existsSync(`${rootDirBranch}/${name}`)) return `${rootDirBranch}/${name}`;
+
+		// else return master url
+		const rootDirBranch = rootDir.replace(process.env.TRAVIS_REPO_SLUG, `${process.env.TRAVIS_REPO_SLUG}/master`);
 		return `${rootDir}/${name}`;
 	}
 

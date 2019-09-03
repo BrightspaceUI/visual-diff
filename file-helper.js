@@ -131,13 +131,7 @@ class FileHelper {
 		name = `${this.formatName(name)}${ext}`;
 		const rootDir = this.goldenDir.replace('/home/travis/build', 'https://raw.githubusercontent.com');
 		const rootDirBranch = rootDir.replace(process.env.TRAVIS_REPO_SLUG, `${process.env.TRAVIS_REPO_SLUG}/${process.env.TRAVIS_PULL_REQUEST_BRANCH}`);
-
-		// if golden was updated in this branch, return that url
-		if (fs.existsSync(`${rootDirBranch}/${name}`)) return `${rootDirBranch}/${name}`;
-
-		// else return master url
-		const rootDirMaster = rootDir.replace(process.env.TRAVIS_REPO_SLUG, `${process.env.TRAVIS_REPO_SLUG}/master`);
-		return `${rootDirMaster}/${name}`;
+		return `${rootDirBranch}/${name}`;
 	}
 
 	async writeCurrentFile(name, content) {

@@ -123,15 +123,14 @@ class FileHelper {
 		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
 		name = `${this.formatName(name)}${ext}`;
 		if (!this.isCI) return name;
-
 		return this.s3.getCurrentObjectUrl(name);
 	}
 
 	getGoldenUrl(name) {
 		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
 		name = `${this.formatName(name)}${ext}`;
-		const rootDir = this.currentDir.replace('/home/travis/build', 'https://raw.githubusercontent.com');
-		console.log('root dir ' + rootDir + ' name ' + name);
+		const rootDir = this.goldenDir.replace('/home/travis/build', 'https://raw.githubusercontent.com');
+		console.log('repo ' + process.env.TRAVIS_REPO_SLUG);
 		return `${rootDir}/${name}`;
 	}
 

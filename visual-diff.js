@@ -244,7 +244,9 @@ class VisualDiff {
 		};
 		const diffHtml = results.map((result) => {
 
-			const goldenUrl = this._fs.getGoldenUrl(result.name);
+			let goldenUrl = this._fs.getGoldenUrl(result.name);
+			// the follow assumes golden directory is exactly ../../ relative to report
+			goldenUrl = goldenUrl.startsWith('https://') ? goldenUrl : `../../${goldenUrl}`;
 
 			return `
 				<h2>${result.name}</h2>

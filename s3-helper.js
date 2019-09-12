@@ -9,8 +9,8 @@ let _s3Config = {
 	target: 'visualdiff.gaudi.d2l/screenshots',
 	region: 'ca-central-1',
 	creds: {
-		accessKeyId: process.env['S3ID'],
-		secretAccessKey: process.env['S3KEY']
+		accessKeyId: process.env['VISUAL_DIFF_S3_ID'],
+		secretAccessKey: process.env['VISUAL_DIFF_S3_SECRET']
 	}
 };
 
@@ -20,7 +20,6 @@ class S3Helper {
 		if (config) _s3Config = Object.assign(_s3Config, config);
 		if (isCI) this.currentConfig = Object.assign({}, _s3Config, { target: `${_s3Config.target}/${process.env['TRAVIS_REPO_SLUG']}/${name}/${this.getTimestamp('-', '.')}`});
 		if (isCI) this.goldenConfig = Object.assign({}, _s3Config, { target: `${_s3Config.target}/${process.env['TRAVIS_REPO_SLUG']}/${name}/golden`});
-		//if (isCI) this.goldenConfig = Object.assign({}, _s3Config, { target: `${_s3Config.target}/${name}/golden.macos`});
 	}
 
 	getCurrentObjectUrl(name) {

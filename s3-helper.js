@@ -26,133 +26,8 @@ class S3Helper {
 		return this.getObjectUrl(name, this.currentConfig);
 	}
 
-	getGoldenObjectUrl(name) {
-		return this.getObjectUrl(name, this.goldenConfig);
-	}
-
 	getObjectUrl(name, config) {
 		return `https://s3.${config.region}.amazonaws.com/${config.target}/${name}`;
-	}
-
-	deleteCurrentFile(filePath) {
-		return this.deleteFile(filePath, this.currentConfig);
-	}
-
-	deleteGoldenFile(filePath) {
-		return this.deleteFile(filePath, this.goldenConfig);
-	}
-
-	deleteFile(filePath, config) {
-		const promise = new Promise((resolve, reject) => {
-
-			const s3 = new AWS.S3({
-				apiVersion: 'latest',
-				accessKeyId: config.creds.accessKeyId,
-				secretAccessKey: config.creds.secretAccessKey,
-				region: config.region
-			});
-
-			const params = {Bucket: config.target, Key: path.basename(filePath)};
-
-			s3.deleteObject(params, function(err, data) {
-				if (err) {
-					if (err.code === 'NoSuchKey') {
-						resolve();
-					} else {
-						process.stdout.write(`\n${chalk.red(err)}`);
-						reject(err);
-					}
-				}
-				if (data) {
-					resolve();
-				}
-			});
-
-		});
-
-		return promise;
-	}
-
-	getCurrentFile(filePath) {
-		return this.getFile(filePath, this.currentConfig);
-	}
-
-	getGoldenFile(filePath) {
-		return this.getFile(filePath, this.goldenConfig);
-	}
-
-	getFile(filePath, config) {
-		const promise = new Promise((resolve, reject) => {
-
-			const s3 = new AWS.S3({
-				apiVersion: 'latest',
-				accessKeyId: config.creds.accessKeyId,
-				secretAccessKey: config.creds.secretAccessKey,
-				region: config.region
-			});
-
-			const params = {Bucket: config.target, Key: path.basename(filePath)};
-
-			s3.getObject(params, function(err, data) {
-				if (err) {
-					if (err.code === 'NoSuchKey') {
-						resolve(false);
-					} else {
-						process.stdout.write(`\n${chalk.red(err)}`);
-						reject(err);
-					}
-				}
-				if (data) {
-					fs.writeFileSync(filePath, data.Body);
-					resolve(true);
-				}
-			});
-		});
-
-		return promise;
-	}
-
-	getCurrentFileList() {
-		return this.getFileList(this.currentConfig);
-	}
-
-	getGoldenFileList() {
-		return this.getFileList(this.goldenConfig);
-	}
-
-	getFileList(config) {
-		const promise = new Promise((resolve, reject) => {
-
-			const s3 = new AWS.S3({
-				apiVersion: 'latest',
-				accessKeyId: config.creds.accessKeyId,
-				secretAccessKey: config.creds.secretAccessKey,
-				region: config.region
-			});
-
-			const params = {
-				Bucket: config.bucket,
-				Prefix: `${config.target.replace(`${config.bucket}/`, '')}/`
-			};
-
-			s3.listObjectsV2(params, function(err, data) {
-				if (err) {
-					process.stdout.write(`\n${chalk.red(err)}`);
-					reject(err);
-				}
-				if (data) {
-					const files = [];
-					for (let i = 0; i < data.Contents.length; i++) {
-						const name = data.Contents[i].Key.replace(params.Prefix, '');
-						if (name.length > 0) files.push(name);
-					}
-					resolve(files);
-				}
-			});
-
-		});
-
-		return promise;
 	}
 
 	getTimestamp(dateDelim, timeDelim) {
@@ -177,10 +52,6 @@ class S3Helper {
 
 	uploadCurrentFile(filePath) {
 		return this.uploadFile(filePath, this.currentConfig);
-	}
-
-	uploadGoldenFile(filePath) {
-		return this.uploadFile(filePath, this.goldenConfig);
 	}
 
 	uploadFile(filePath, config) {

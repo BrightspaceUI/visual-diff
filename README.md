@@ -102,9 +102,24 @@ Make desired code changes, then run the tests to compare.
 },
 ```
 
+In Travis, commit the updates to the goldens.
+
+```json
+"scripts": {
+  "test:diff:golden:commit": "commit-goldens"
+},
+```
+
 ***Tips:***
 * specify a longer Mocha timeout (while a screenshot is worth a 1000 tests, each screenshot is slower compared to a typical  unit test)
 * use Mocha's grep option to run a subset (i.e. `npm run test:diff -- -g some-pattern`)
+* to update the goldens in Travis, do the following:
+	1. In recent build for your repo, in top right corner click "More options" > "Trigger build"
+	2. Enter the following parameters:
+		* Branch: your current branch (NOT master)
+		* Custom Commit Message: Updating goldens for <component>
+		* Custom config: `script: npm run build && npm run test:diff:golden && npm run test:diff:golden:commit`
+			* For a specific subset of goldens: `script: npm run build && npm run test:diff:golden -- -g <component e.g., button> && npm run test:diff:golden:commit`
 
 ### Running in CI
 

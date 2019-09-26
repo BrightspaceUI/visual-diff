@@ -11,7 +11,8 @@
     "lint": "eslint . --ext .js,.html",
     "test": "npm run lint",
     "test:diff": "mocha './test/**/*.visual-diff.js' -t 10000",
-    "test:diff:golden": "mocha './test/**/*.visual-diff.js' -t 10000 --golden"
+    "test:diff:golden": "mocha './test/**/*.visual-diff.js' -t 10000 --golden",
+    "test:diff:golden:commit": "node ./bin/commit-goldens.js"
   },
   "bin": {
     "commit-goldens": "bin/commit-goldens.js"

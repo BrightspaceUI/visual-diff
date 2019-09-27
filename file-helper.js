@@ -67,11 +67,39 @@ class FileHelper {
 		return this.goldenDir;
 	}
 
+	getReportFileName() {
+		return this.isCI ? `${this.getTimestamp('-', '.')}-${process.env['TRAVIS_COMMIT']}-report.html` : 'report.html';
+	}
+
+	getTimestamp(dateDelim, timeDelim) {
+		dateDelim = dateDelim ? dateDelim : '-';
+		timeDelim = timeDelim ? timeDelim : ':';
+		const date = new Date();
+		const year = date.getUTCFullYear();
+		const month = date.getUTCMonth() + 1;
+		const day = date.getUTCDate();
+		const hours = date.getUTCHours();
+		const minutes = date.getUTCMinutes();
+		const seconds = date.getUTCSeconds();
+		const milliseconds = date.getUTCMilliseconds();
+		return year + dateDelim
+			+ (month < 10 ? '0' + month : month) + dateDelim
+			+ (day < 10 ? '0' + day : day) + ' '
+			+ (hours < 10 ? '0' + hours : hours) + timeDelim
+			+ (minutes < 10 ? '0' + minutes : minutes) + timeDelim
+			+ (seconds < 10 ? '0' + seconds : seconds) + '.'
+			+ milliseconds;
+	}
+
 	getCurrentImage(name) {
 		return this.getImage(this.getCurrentPath(name));
 	}
 
 	getCurrentImageBase64(name) {
+		return this.getImageBase64(this.getCurrentPath(name));
+	}
+
+	getDiffImageBase64(name) {
 		return this.getImageBase64(this.getCurrentPath(name));
 	}
 
@@ -132,13 +160,6 @@ class FileHelper {
 		return this.s3.getCurrentObjectUrl('');
 	}
 
-	getCurrentUrl(name) {
-		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
-		name = `${this.formatName(name)}${ext}`;
-		if (!this.isCI) return name;
-		return this.s3.getCurrentObjectUrl(name);
-	}
-
 	getGoldenUrl(name) {
 		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
 		name = `${this.formatName(name)}${ext}`;
@@ -148,11 +169,11 @@ class FileHelper {
 		return `${rootDirBranch}/${name}`;
 	}
 
-	async writeCurrentFile(name, content) {
+	async writeFile(name, content) {
 		if (!name || name.length === 0 || !content || content.length === 0) return;
 		const filePath = this.getCurrentPath(name);
 		fs.writeFileSync(filePath, content);
-		if (this.isCI) await this.s3.uploadCurrentFile(filePath);
+		if (this.isCI) await this.s3.uploadFile(filePath);
 	}
 
 	async writeCurrentStream(name, stream) {
@@ -166,7 +187,6 @@ class FileHelper {
 			return promise;
 		};
 		await writeStream();
-		if (this.isCI) await this.s3.uploadCurrentFile(filePath);
 	}
 
 }

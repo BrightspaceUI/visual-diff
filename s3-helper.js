@@ -18,38 +18,15 @@ class S3Helper {
 
 	constructor(name, config, isCI) {
 		if (config) _s3Config = Object.assign(_s3Config, config);
-		if (isCI) this.currentConfig = Object.assign({}, _s3Config, { target: `${_s3Config.target}/${process.env['TRAVIS_REPO_SLUG']}/${name}/${this.getTimestamp('-', '.')}`});
+		if (isCI) this.currentConfig = Object.assign({}, _s3Config, { target: `${_s3Config.target}/${process.env['TRAVIS_REPO_SLUG']}/${name}`});
 	}
 
 	getCurrentObjectUrl(name) {
 		return `https://s3.${this.currentConfig.region}.amazonaws.com/${this.currentConfig.target}/${name}`;
 	}
 
-	getTimestamp(dateDelim, timeDelim) {
-		dateDelim = dateDelim ? dateDelim : '-';
-		timeDelim = timeDelim ? timeDelim : ':';
-		const date = new Date();
-		const year = date.getUTCFullYear();
-		const month = date.getUTCMonth() + 1;
-		const day = date.getUTCDate();
-		const hours = date.getUTCHours();
-		const minutes = date.getUTCMinutes();
-		const seconds = date.getUTCSeconds();
-		const milliseconds = date.getUTCMilliseconds();
-		return year + dateDelim
-			+ (month < 10 ? '0' + month : month) + dateDelim
-			+ (day < 10 ? '0' + day : day) + ' '
-			+ (hours < 10 ? '0' + hours : hours) + timeDelim
-			+ (minutes < 10 ? '0' + minutes : minutes) + timeDelim
-			+ (seconds < 10 ? '0' + seconds : seconds) + '.'
-			+ milliseconds;
-	}
-
-	uploadCurrentFile(filePath) {
-		return this.uploadFile(filePath, this.currentConfig);
-	}
-
-	uploadFile(filePath, config) {
+	uploadFile(filePath) {
+		const config = this.currentConfig;
 		const promise = new Promise((resolve, reject) => {
 
 			const getContentType = (filePath) => {

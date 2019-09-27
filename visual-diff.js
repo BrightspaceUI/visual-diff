@@ -65,9 +65,9 @@ class VisualDiff {
 			if (_isGoldenUpdate) {
 				await this._deleteGoldenOrphans();
 			} else {
-				await this._generateHtml('report.html', this._results);
+				await this._generateHtml(this._fs.getReportFileName(), this._results);
 				if (_isCI) {
-					process.stdout.write(`\nResults: ${this._fs.getCurrentBaseUrl()}report.html\n`);
+					process.stdout.write(`\nResults: ${this._fs.getCurrentBaseUrl()}${this._fs.getReportFileName()}\n`);
 				} else {
 					process.stdout.write(`\nResults: ${_serverInfo.baseUrl}${currentTarget}/report.html\n`);
 				}
@@ -139,7 +139,7 @@ class VisualDiff {
 			name: name,
 			current: { base64Image: currentImageBase64, height: currentImage.height, width: currentImage.width },
 			golden: goldenImage ? { base64Image: goldenImageBase64, height: goldenImage.height, width: goldenImage.width } : null,
-			pixelsDiff: pixelsDiff
+			diff: { pixelsDiff: pixelsDiff, base64Image: pixelsDiff > 0 ? await this._fs.getDiffImageBase64(`${name}-diff`) : null },
 		});
 
 		expect(goldenImage !== null, 'golden exists').equal(true);
@@ -221,11 +221,11 @@ class VisualDiff {
 			if (image) return createImageHtml('Golden', image);
 			else return createNoImageHtml('Golden', defaultImage, 'No golden.');
 		};
-		const createDiffHtml = (pixelsDiff, url, defaultImage) => {
-			if (pixelsDiff === 0) {
+		const createDiffHtml = (diff, defaultImage) => {
+			if (diff.pixelsDiff === 0) {
 				return createNoImageHtml('Difference (0px)', defaultImage, 'Images match.');
-			} else if (pixelsDiff > 0) {
-				return createArtifactHtml('Difference', `${pixelsDiff / this._dpr}px`, `<img src="${url}" style="width: ${defaultImage.width / this._dpr}px; height: ${defaultImage.height / this._dpr}px;" alt="Difference" />`);
+			} else if (diff.pixelsDiff > 0) {
+				return createArtifactHtml('Difference', `${diff.pixelsDiff / this._dpr}px`, `<img src="data:image/png;base64,${diff.base64Image}" style="width: ${defaultImage.width / this._dpr}px; height: ${defaultImage.height / this._dpr}px;" alt="Difference" />`);
 			} else {
 				return createNoImageHtml('Difference', defaultImage, 'No image.');
 			}
@@ -251,7 +251,7 @@ class VisualDiff {
 				<div class="compare">
 					${createCurrentHtml(result.current)}
 					${createGoldenHtml(result.golden, result.current)}
-					${createDiffHtml(result.pixelsDiff, this._fs.getCurrentUrl(`${result.name}-diff`), result.current)}
+					${createDiffHtml(result.diff, result.current)}
 				</div>`;
 		}).join('\n');
 
@@ -281,7 +281,7 @@ class VisualDiff {
 			</html>
 		`;
 
-		await this._fs.writeCurrentFile(fileName, html);
+		await this._fs.writeFile(fileName, html);
 	}
 
 }

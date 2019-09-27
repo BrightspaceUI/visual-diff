@@ -62,14 +62,15 @@ class VisualDiff {
 		});
 
 		after(async() => {
+			const reportName = this._fs.getReportFileName();
 			if (_isGoldenUpdate) {
 				await this._deleteGoldenOrphans();
 			} else {
-				await this._generateHtml(this._fs.getReportFileName(), this._results);
+				await this._generateHtml(reportName, this._results);
 				if (_isCI) {
-					process.stdout.write(`\nResults: ${this._fs.getCurrentBaseUrl()}${this._fs.getReportFileName()}\n`);
+					process.stdout.write(`\nResults: ${this._fs.getCurrentBaseUrl()}${reportName}\n`);
 				} else {
-					process.stdout.write(`\nResults: ${_serverInfo.baseUrl}${currentTarget}/report.html\n`);
+					process.stdout.write(`\nResults: ${_serverInfo.baseUrl}${currentTarget}/${reportName}\n`);
 				}
 			}
 		});

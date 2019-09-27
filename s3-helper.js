@@ -22,11 +22,7 @@ class S3Helper {
 	}
 
 	getCurrentObjectUrl(name) {
-		return this.getObjectUrl(name, this.currentConfig);
-	}
-
-	getObjectUrl(name, config) {
-		return `https://s3.${config.region}.amazonaws.com/${config.target}/${name}`;
+		return `https://s3.${this.currentConfig.region}.amazonaws.com/${this.currentConfig.target}/${name}`;
 	}
 
 	getTimestamp(dateDelim, timeDelim) {

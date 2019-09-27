@@ -71,16 +71,34 @@ class FileHelper {
 		return this.getImage(this.getCurrentPath(name));
 	}
 
+	getCurrentImageBase64(name) {
+		return this.getImageBase64(this.getCurrentPath(name));
+	}
+
 	async getGoldenImage(name) {
 		const hasGoldenFile = await this.hasGoldenFile(name);
 		if (!hasGoldenFile) return null;
 		return await this.getImage(this.getGoldenPath(name));
 	}
 
+	async getGoldenImageBase64(name) {
+		const hasGoldenFile = await this.hasGoldenFile(name);
+		if (!hasGoldenFile) return null;
+		return await this.getImageBase64(this.getGoldenPath(name));
+	}
+
 	getImage(path) {
 		return new Promise((resolve) => {
 			const image = fs.createReadStream(path).pipe(new PNG()).on('parsed', () => {
 				resolve(image);
+			});
+		});
+	}
+
+	getImageBase64(path) {
+		return new Promise((resolve) => {
+			fs.createReadStream(path, { encoding: 'base64'}).on('data', (data) => {
+				resolve(data);
 			});
 		});
 	}
@@ -96,11 +114,6 @@ class FileHelper {
 			rootDir += `/${dir}`;
 			if (!fs.existsSync(rootDir)) fs.mkdirSync(rootDir);
 		});
-	}
-
-	async putCurrentFile(name) {
-		if (!this.isCI) return;
-		await this.s3.uploadCurrentFile(this.getCurrentPath(name));
 	}
 
 	async removeGoldenFile(name) {

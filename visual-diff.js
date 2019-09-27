@@ -49,7 +49,6 @@ class VisualDiff {
 				goldenTarget = goldenTarget.replace('/home/travis/build/', '');
 			}
 
-			process.stdout.write(`\n${chalk.green('    Current:')} ${currentTarget}`);
 			process.stdout.write(`\n${chalk.hex('#DCDCAA')('    Golden:')} ${goldenTarget}\n\n`);
 
 			if (!_isGoldenUpdate && !_isCI) {
@@ -113,7 +112,6 @@ class VisualDiff {
 		const info = Object.assign({path: this._fs.getCurrentPath(name)}, options);
 
 		await page.screenshot(info);
-		await this._fs.putCurrentFile(name);
 
 		if (_isGoldenUpdate) return this._updateGolden(name);
 		else await this._compare(name);
@@ -123,6 +121,10 @@ class VisualDiff {
 
 		const currentImage = await this._fs.getCurrentImage(name);
 		const goldenImage = await this._fs.getGoldenImage(name);
+
+		const currentImageBase64 = await this._fs.getCurrentImageBase64(name);
+		const goldenImageBase64 = await this._fs.getGoldenImageBase64(name);
+
 		let pixelsDiff;
 
 		if (goldenImage && currentImage.width === goldenImage.width && currentImage.height === goldenImage.height) {
@@ -135,8 +137,8 @@ class VisualDiff {
 
 		this._results.push({
 			name: name,
-			current: { height: currentImage.height, width: currentImage.width },
-			golden: goldenImage ? { height: goldenImage.height, width: goldenImage.width } : null,
+			current: { base64Image: currentImageBase64, height: currentImage.height, width: currentImage.width },
+			golden: goldenImage ? { base64Image: goldenImageBase64, height: goldenImage.height, width: goldenImage.width } : null,
 			pixelsDiff: pixelsDiff
 		});
 
@@ -202,21 +204,21 @@ class VisualDiff {
 				${content}
 			</div>`;
 		};
-		const createImageHtml = (name, image, url) => {
+		const createImageHtml = (name, image) => {
 			return createArtifactHtml(
 				name,
 				`w:${image.width / this._dpr} x h:${image.height / this._dpr}`,
-				`<img src="${url}" style="width: ${image.width / this._dpr}px; height: ${image.height / this._dpr}px;" alt="${name}" />`
+				`<img src="data:image/png;base64,${image.base64Image}" style="width: ${image.width / this._dpr}px; height: ${image.height / this._dpr}px;" alt="${name}" />`
 			);
 		};
 		const createNoImageHtml = (name, image, reason) => {
 			return createArtifactHtml(name, '', `<div class="label" style="width: ${image.width / this._dpr}px;">${reason}</div>`);
 		};
-		const createCurrentHtml = (image, url) => {
-			return createImageHtml('Current', image, url);
+		const createCurrentHtml = (image) => {
+			return createImageHtml('Current', image);
 		};
-		const createGoldenHtml = (image, url, defaultImage) => {
-			if (image) return createImageHtml('Golden', image, url);
+		const createGoldenHtml = (image, defaultImage) => {
+			if (image) return createImageHtml('Golden', image);
 			else return createNoImageHtml('Golden', defaultImage, 'No golden.');
 		};
 		const createDiffHtml = (pixelsDiff, url, defaultImage) => {
@@ -244,15 +246,11 @@ class VisualDiff {
 		};
 		const diffHtml = results.map((result) => {
 
-			let goldenUrl = this._fs.getGoldenUrl(result.name);
-			// the follow assumes golden directory is exactly ../../ relative to report
-			goldenUrl = goldenUrl.startsWith('https://') ? goldenUrl : `../../${goldenUrl}`;
-
 			return `
 				<h2>${result.name}</h2>
 				<div class="compare">
-					${createCurrentHtml(result.current, this._fs.getCurrentUrl(result.name))}
-					${createGoldenHtml(result.golden, goldenUrl, result.current)}
+					${createCurrentHtml(result.current)}
+					${createGoldenHtml(result.golden, result.current)}
 					${createDiffHtml(result.pixelsDiff, this._fs.getCurrentUrl(`${result.name}-diff`), result.current)}
 				</div>`;
 		}).join('\n');

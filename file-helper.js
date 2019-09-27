@@ -84,7 +84,7 @@ class FileHelper {
 		const milliseconds = date.getUTCMilliseconds();
 		return year + dateDelim
 			+ (month < 10 ? '0' + month : month) + dateDelim
-			+ (day < 10 ? '0' + day : day) + ' '
+			+ (day < 10 ? '0' + day : day) + '-'
 			+ (hours < 10 ? '0' + hours : hours) + timeDelim
 			+ (minutes < 10 ? '0' + minutes : minutes) + timeDelim
 			+ (seconds < 10 ? '0' + seconds : seconds) + '.'

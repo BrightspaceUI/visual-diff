@@ -99,8 +99,8 @@ class FileHelper {
 		return this.getImageBase64(this.getCurrentPath(name));
 	}
 
-	getDiffImageBase64(name) {
-		return this.getImageBase64(this.getCurrentPath(name));
+	async getDiffImageBase64(name) {
+		return await this.getImageBase64(this.getCurrentPath(name));
 	}
 
 	async getGoldenImage(name) {

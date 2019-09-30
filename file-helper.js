@@ -45,7 +45,7 @@ class FileHelper {
 		return fs.readdirSync(this.currentDir);
 	}
 
-	async getGoldenFiles() {
+	getGoldenFiles() {
 		return fs.readdirSync(this.goldenDir);
 	}
 
@@ -99,20 +99,20 @@ class FileHelper {
 		return this.getImageBase64(this.getCurrentPath(name));
 	}
 
-	async getDiffImageBase64(name) {
-		return await this.getImageBase64(this.getCurrentPath(name));
+	getDiffImageBase64(name) {
+		return this.getImageBase64(this.getCurrentPath(name));
 	}
 
-	async getGoldenImage(name) {
-		const hasGoldenFile = await this.hasGoldenFile(name);
+	getGoldenImage(name) {
+		const hasGoldenFile = this.hasGoldenFile(name);
 		if (!hasGoldenFile) return null;
-		return await this.getImage(this.getGoldenPath(name));
+		return this.getImage(this.getGoldenPath(name));
 	}
 
-	async getGoldenImageBase64(name) {
-		const hasGoldenFile = await this.hasGoldenFile(name);
+	getGoldenImageBase64(name) {
+		const hasGoldenFile = this.hasGoldenFile(name);
 		if (!hasGoldenFile) return null;
-		return await this.getImageBase64(this.getGoldenPath(name));
+		return this.getImageBase64(this.getGoldenPath(name));
 	}
 
 	getImage(path) {
@@ -125,13 +125,16 @@ class FileHelper {
 
 	getImageBase64(path) {
 		return new Promise((resolve) => {
-			fs.createReadStream(path, { encoding: 'base64'}).on('data', (data) => {
-				resolve(data);
+			let image = '';
+			fs.createReadStream(path, {encoding: 'base64'}).on('data', (data) => {
+				image += data;
+			}).on('end', () => {
+				resolve(image);
 			});
 		});
 	}
 
-	async hasGoldenFile(name) {
+	hasGoldenFile(name) {
 		const goldenPath = this.getGoldenPath(name);
 		return fs.existsSync(goldenPath);
 	}
@@ -144,12 +147,12 @@ class FileHelper {
 		});
 	}
 
-	async removeGoldenFile(name) {
+	removeGoldenFile(name) {
 		const path = this.getGoldenPath(name);
 		if (fs.existsSync(path)) fs.unlinkSync(path);
 	}
 
-	async updateGolden(name) {
+	updateGolden(name) {
 		if (!fs.existsSync(this.getCurrentPath(name))) return false;
 		fs.copyFileSync(this.getCurrentPath(name), this.getGoldenPath(name));
 		return true;

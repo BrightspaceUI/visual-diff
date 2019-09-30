@@ -126,21 +126,24 @@ class VisualDiff {
 		const currentImageBase64 = await this._fs.getCurrentImageBase64(name);
 		const goldenImageBase64 = await this._fs.getGoldenImageBase64(name);
 
-		let pixelsDiff;
+		let pixelsDiff, diffImageBase64;
 
 		if (goldenImage && currentImage.width === goldenImage.width && currentImage.height === goldenImage.height) {
 			const diff = new PNG({width: currentImage.width, height: currentImage.height});
 			pixelsDiff = pixelmatch(
 				currentImage.data, goldenImage.data, diff.data, currentImage.width, currentImage.height, {threshold: this._tolerance}
 			);
-			if (pixelsDiff !== 0) await this._fs.writeCurrentStream(`${name}-diff`, diff.pack());
+			if (pixelsDiff !== 0) {
+				await this._fs.writeCurrentStream(`${name}-diff`, diff.pack());
+				diffImageBase64 = await this._fs.getDiffImageBase64(`${name}-diff`);
+			}
 		}
 
 		this._results.push({
 			name: name,
 			current: { base64Image: currentImageBase64, height: currentImage.height, width: currentImage.width },
 			golden: goldenImage ? { base64Image: goldenImageBase64, height: goldenImage.height, width: goldenImage.width } : null,
-			diff: { pixelsDiff: pixelsDiff, base64Image: pixelsDiff > 0 ? await this._fs.getDiffImageBase64(`${name}-diff`) : null },
+			diff: { pixelsDiff: pixelsDiff, base64Image: (pixelsDiff > 0 ? diffImageBase64 : null) },
 		});
 
 		expect(goldenImage !== null, 'golden exists').equal(true);

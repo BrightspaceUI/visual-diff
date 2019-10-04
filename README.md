@@ -12,6 +12,7 @@ A visual difference utility using Mocha, Chai, Puppeteer, and PixelMatch.
 Install `visual-diff`.
 ```shell
 npm i @brightspace-ui/visual-diff
+npm i puppeteer
 ```
 
 ## Usage

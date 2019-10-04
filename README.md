@@ -18,7 +18,7 @@ npm i @brightspace-ui/visual-diff
 
 ### Create Test Fixture
 
-Create an `.html` file containing the element to be tested.  
+Create an `.html` file containing the element to be tested. Below is an example `.html` file with the component to be tested.
 
 ***Tips:***
 * provide some whitespace around the element so screenshots do not clip other fixtures on the page if larger clip dimensions are used for the screenshot.
@@ -41,7 +41,7 @@ Create an `.html` file containing the element to be tested.
 
 ### Create Visual-Diff Tests
 
-Create the visual-diff tests. Provide a ***unique*** name and the location where screenshots are saved. Use the `VisualDiff` context to navigate, take screenshots, and compare. Append the `--golden` arg to generate goldens.
+Create the visual-diff tests. Provide a ***unique*** name and the location where screenshots are saved. Use the `VisualDiff` context to navigate, take screenshots, and compare. Append the `--golden` arg to generate goldens. Below is an example of the visual-diff test for the above component.
 
 ***Tips:***
 * use `deviceScaleFactor` to account for `dpr` (device-pixel-ratio), especially on retina display

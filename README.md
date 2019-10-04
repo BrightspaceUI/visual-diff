@@ -16,6 +16,8 @@ npm i @brightspace-ui/visual-diff
 
 ## Usage
 
+**Note:** Both the `.html` and the `.js` file need to end with the `.visual-diff` suffix for the tests to run correctly.
+
 ### Create Test Fixture
 
 Create an `.html` file containing the element to be tested. Below is an example `.html` file with the component to be tested.

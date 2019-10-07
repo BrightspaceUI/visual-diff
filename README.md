@@ -111,7 +111,26 @@ Make desired code changes, then run the tests to compare.
 
 ### Running in CI
 
-TODO
+In order to run this utility in CI, you need to add some secure environment variables to your Travis CI file.
+
+1. Run the following commands with the appropriate secret value. Team Gaudi has these values for D2Lers.
+
+```shell
+travis encrypt VISUAL_DIFF_S3_ID="SECRET" --add --com
+travis encrypt VISUAL_DIFF_S3_SECRET="SECRET" --add --com
+```
+
+2. Edit `.travis.yml` to include comments above the generated secrets, identifying what the secrets are.
+
+Example:
+```yaml
+env:
+  global:
+  # VISUAL_DIFF_S3_ID
+  - secure: TOKEN
+  # VISUAL_DIFF_S3_SECRET
+  - secure: TOKEN
+```
 
 ## Contributing
 

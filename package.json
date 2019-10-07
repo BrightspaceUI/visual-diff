@@ -11,7 +11,11 @@
     "lint": "eslint . --ext .js,.html",
     "test": "npm run lint",
     "test:diff": "mocha './test/**/*.visual-diff.js' -t 10000",
-    "test:diff:golden": "mocha './test/**/*.visual-diff.js' -t 10000 --golden"
+    "test:diff:golden": "mocha './test/**/*.visual-diff.js' -t 10000 --golden",
+    "test:diff:golden:commit": "node ./bin/commit-goldens.js"
+  },
+  "bin": {
+    "commit-goldens": "bin/commit-goldens.js"
   },
   "files": [
     "file-helper.js",
@@ -28,7 +32,8 @@
     "eslint-plugin-lit": "^1",
     "eslint-plugin-sort-class-members": "^1",
     "mocha": "^6",
-    "puppeteer": "^1"
+    "puppeteer": "^1",
+    "simple-git": "^1.126.0"
   },
   "peerDependencies": {
     "mocha": "^6",

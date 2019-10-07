@@ -11,13 +11,11 @@ class FileHelper {
 		this.name = name;
 		this.rootDir = rootDir;
 		this.currentSubDir = `current/${name}`;
-		this.goldenSubDir = `golden/${name}`;
+		this.goldenSubDir = this.isCI ? `ci/golden/${name}` : `golden/${name}`;
 		this.currentDir = `${rootDir}/${this.currentSubDir}`;
 		this.goldenDir = `${rootDir}/${this.goldenSubDir}`;
 
 		if (!fs.existsSync(this.rootDir)) fs.mkdirSync(this.rootDir);
-
-		if (this.isCI) this.cleanDir(this.goldenDir);
 		this.makeDir(rootDir, this.goldenSubDir);
 
 		this.cleanDir(this.currentDir);
@@ -47,12 +45,8 @@ class FileHelper {
 		return fs.readdirSync(this.currentDir);
 	}
 
-	async getGoldenFiles() {
-		if (this.isCI) {
-			return await this.s3.getGoldenFileList();
-		} else {
-			return fs.readdirSync(this.goldenDir);
-		}
+	getGoldenFiles() {
+		return fs.readdirSync(this.goldenDir);
 	}
 
 	getCurrentPath(name) {
@@ -70,17 +64,55 @@ class FileHelper {
 	}
 
 	getGoldenTarget() {
-		return this.isCI ? this.s3.goldenConfig.target : this.goldenDir;
+		return this.goldenDir;
+	}
+
+	getReportFileName() {
+		return this.isCI ? `${this.getTimestamp('-', '.')}-${process.env['TRAVIS_COMMIT']}-report.html` : 'report.html';
+	}
+
+	getTimestamp(dateDelim, timeDelim) {
+		dateDelim = dateDelim ? dateDelim : '-';
+		timeDelim = timeDelim ? timeDelim : ':';
+		const date = new Date();
+		const year = date.getUTCFullYear();
+		const month = date.getUTCMonth() + 1;
+		const day = date.getUTCDate();
+		const hours = date.getUTCHours();
+		const minutes = date.getUTCMinutes();
+		const seconds = date.getUTCSeconds();
+		const milliseconds = date.getUTCMilliseconds();
+		return year + dateDelim
+			+ (month < 10 ? '0' + month : month) + dateDelim
+			+ (day < 10 ? '0' + day : day) + '-'
+			+ (hours < 10 ? '0' + hours : hours) + timeDelim
+			+ (minutes < 10 ? '0' + minutes : minutes) + timeDelim
+			+ (seconds < 10 ? '0' + seconds : seconds) + '.'
+			+ milliseconds;
 	}
 
 	getCurrentImage(name) {
 		return this.getImage(this.getCurrentPath(name));
 	}
 
-	async getGoldenImage(name) {
-		const hasGoldenFile = await this.hasGoldenFile(name);
+	getCurrentImageBase64(name) {
+		return this.getImageBase64(this.getCurrentPath(name));
+	}
+
+	getDiffImageBase64(name) {
+		return this.getImageBase64(this.getCurrentPath(name));
+	}
+
+	getGoldenImage(name) {
+		const hasGoldenFile = this.hasGoldenFile(name);
 		if (!hasGoldenFile) return null;
-		return await this.getImage(this.getGoldenPath(name));
+		return this.getImage(this.getGoldenPath(name));
+	}
+
+	getGoldenImageBase64(name) {
+		const hasGoldenFile = this.hasGoldenFile(name);
+		if (!hasGoldenFile) return null;
+		return this.getImageBase64(this.getGoldenPath(name));
 	}
 
 	getImage(path) {
@@ -91,11 +123,19 @@ class FileHelper {
 		});
 	}
 
-	async hasGoldenFile(name) {
+	getImageBase64(path) {
+		return new Promise((resolve) => {
+			let image = '';
+			fs.createReadStream(path, {encoding: 'base64'}).on('data', (data) => {
+				image += data;
+			}).on('end', () => {
+				resolve(image);
+			});
+		});
+	}
+
+	hasGoldenFile(name) {
 		const goldenPath = this.getGoldenPath(name);
-		if (this.isCI) {
-			await this.s3.getGoldenFile(goldenPath);
-		}
 		return fs.existsSync(goldenPath);
 	}
 
@@ -107,26 +147,14 @@ class FileHelper {
 		});
 	}
 
-	async putCurrentFile(name) {
-		if (!this.isCI) return;
-		await this.s3.uploadCurrentFile(this.getCurrentPath(name));
-	}
-
-	async putGoldenFile(name) {
-		if (!this.isCI) return;
-		await this.s3.uploadGoldenFile(this.getGoldenPath(name));
-	}
-
-	async removeGoldenFile(name) {
+	removeGoldenFile(name) {
 		const path = this.getGoldenPath(name);
-		if (this.isCI) await this.s3.deleteGoldenFile(path);
 		if (fs.existsSync(path)) fs.unlinkSync(path);
 	}
 
-	async updateGolden(name) {
+	updateGolden(name) {
 		if (!fs.existsSync(this.getCurrentPath(name))) return false;
 		fs.copyFileSync(this.getCurrentPath(name), this.getGoldenPath(name));
-		await this.putGoldenFile(name);
 		return true;
 	}
 
@@ -135,25 +163,20 @@ class FileHelper {
 		return this.s3.getCurrentObjectUrl('');
 	}
 
-	getCurrentUrl(name) {
-		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
-		name = `${this.formatName(name)}${ext}`;
-		if (!this.isCI) return name;
-		return this.s3.getCurrentObjectUrl(name);
-	}
-
 	getGoldenUrl(name) {
 		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
 		name = `${this.formatName(name)}${ext}`;
 		if (!this.isCI) return `${this.goldenSubDir}/${name}`;
-		return this.s3.getGoldenObjectUrl(name);
+		const rootDir = this.goldenDir.replace('/home/travis/build', 'https://raw.githubusercontent.com');
+		const rootDirBranch = rootDir.replace(process.env.TRAVIS_REPO_SLUG, `${process.env.TRAVIS_REPO_SLUG}/${process.env.TRAVIS_PULL_REQUEST_BRANCH}`);
+		return `${rootDirBranch}/${name}`;
 	}
 
-	async writeCurrentFile(name, content) {
+	async writeFile(name, content) {
 		if (!name || name.length === 0 || !content || content.length === 0) return;
 		const filePath = this.getCurrentPath(name);
 		fs.writeFileSync(filePath, content);
-		if (this.isCI) await this.s3.uploadCurrentFile(filePath);
+		if (this.isCI) await this.s3.uploadFile(filePath);
 	}
 
 	async writeCurrentStream(name, stream) {
@@ -167,7 +190,6 @@ class FileHelper {
 			return promise;
 		};
 		await writeStream();
-		if (this.isCI) await this.s3.uploadCurrentFile(filePath);
 	}
 
 }

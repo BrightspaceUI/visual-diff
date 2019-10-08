@@ -113,13 +113,14 @@ Make desired code changes, then run the tests to compare.
 
 In order to run this utility in CI, you need to add some secure environment variables to your Travis CI file.
 
-The visual diff test reports will be stored in Amazon S3 and the Goldens are stored in GitHub (specifically in the current branch in a PR).
+The visual diff test reports will be stored in Amazon S3 and the Goldens are stored in the GitHub repository, and added to the current PR branch when initially generated or updated.
 
-1. Run the following commands with the appropriate secret value. For D2L projects, reach out to us to setup (recommended), otherwise use config/keys for your own Amazon S3 bucket.
+1. Run the following commands with the appropriate secret value. For D2L projects, reach out to us to setup (recommended), otherwise use config/keys for your own Amazon S3 bucket and GitHUb repo.
 
 ```shell
 travis encrypt VISUAL_DIFF_S3_ID="SECRET" --add --com
 travis encrypt VISUAL_DIFF_S3_SECRET="SECRET" --add --com
+travis encrypt GITHUB_RELEASE_TOKEN="SECRET" --add --com
 ```
 
 2. Edit `.travis.yml` to include comments above the generated secrets, identifying what the secrets are.
@@ -131,6 +132,8 @@ env:
   # VISUAL_DIFF_S3_ID
   - secure: TOKEN
   # VISUAL_DIFF_S3_SECRET
+  - secure: TOKEN
+  # GITHUB_RELEASE_TOKEN
   - secure: TOKEN
 ```
 

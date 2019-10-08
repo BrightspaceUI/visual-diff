@@ -12,13 +12,16 @@ A visual difference utility using Mocha, Chai, Puppeteer, and PixelMatch.
 Install `visual-diff`.
 ```shell
 npm i @brightspace-ui/visual-diff
+npm i puppeteer
 ```
 
 ## Usage
 
+**Note:** Both the `.html` and the `.js` file need to end with the `.visual-diff` suffix for the tests to run correctly.
+
 ### Create Test Fixture
 
-Create an `.html` file containing the element to be tested.  
+Create an `.html` file containing the element to be tested. Below is an example `.html` file with the component to be tested.
 
 ***Tips:***
 * provide some whitespace around the element so screenshots do not clip other fixtures on the page if larger clip dimensions are used for the screenshot.
@@ -41,7 +44,7 @@ Create an `.html` file containing the element to be tested.
 
 ### Create Visual-Diff Tests
 
-Create the visual-diff tests. Provide a ***unique*** name and the location where screenshots are saved. Use the `VisualDiff` context to navigate, take screenshots, and compare. Append the `--golden` arg to generate goldens.
+Create the visual-diff tests. Provide a ***unique*** name and the location where screenshots are saved. Use the `VisualDiff` context to navigate, take screenshots, and compare. Append the `--golden` arg to generate goldens. Below is an example of the visual-diff test for the above component.
 
 ***Tips:***
 * use `deviceScaleFactor` to account for `dpr` (device-pixel-ratio), especially on retina display
@@ -123,7 +126,31 @@ In Travis, commit the updates to the goldens.
 
 ### Running in CI
 
-TODO
+In order to run this utility in CI, you need to add some secure environment variables to your Travis CI file.
+
+The visual diff test reports will be stored in Amazon S3 and the Goldens are stored in the GitHub repository, and added to the current PR branch when initially generated or updated.
+
+1. Run the following commands with the appropriate secret value. For D2L projects, reach out to us to setup (recommended), otherwise use config/keys for your own Amazon S3 bucket and GitHub repo.
+
+```shell
+travis encrypt VISUAL_DIFF_S3_ID="SECRET" --add --com
+travis encrypt VISUAL_DIFF_S3_SECRET="SECRET" --add --com
+travis encrypt GITHUB_RELEASE_TOKEN="SECRET" --add --com
+```
+
+2. Edit `.travis.yml` to include comments above the generated secrets, identifying what the secrets are.
+
+Example:
+```yaml
+env:
+  global:
+  # VISUAL_DIFF_S3_ID
+  - secure: TOKEN
+  # VISUAL_DIFF_S3_SECRET
+  - secure: TOKEN
+  # GITHUB_RELEASE_TOKEN
+  - secure: TOKEN
+```
 
 ## Contributing
 

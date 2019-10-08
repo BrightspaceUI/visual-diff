@@ -29,7 +29,7 @@ function commit() {
 			return git.add('*');
 		}).then(() => {
 			console.log('Added goldens. Committing...');
-			const commitMessage = `[skip ci] Updating golden with changes made in branch ${branchName}`;
+			const commitMessage = `Updating golden with changes made in branch ${branchName}`;
 			return git.commit(commitMessage);
 		}).then((status) => {
 			console.log(status);

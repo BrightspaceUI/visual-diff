@@ -113,7 +113,9 @@ Make desired code changes, then run the tests to compare.
 
 In order to run this utility in CI, you need to add some secure environment variables to your Travis CI file.
 
-1. Run the following commands with the appropriate secret value. Team Gaudi has these values for D2Lers.
+The visual diff test reports will be stored in Amazon S3 and the Goldens are stored in GitHub (specifically in the current branch in a PR).
+
+1. Run the following commands with the appropriate secret value. For D2L projects, reach out to us to setup (recommended), otherwise use config/keys for your own Amazon S3 bucket.
 
 ```shell
 travis encrypt VISUAL_DIFF_S3_ID="SECRET" --add --com

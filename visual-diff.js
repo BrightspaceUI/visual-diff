@@ -118,10 +118,10 @@ class VisualDiff {
 		else await this._compare(name);
 	}
 
-	async setAnimationTiming(page, rate) {
+	async disableAnimations(page) {
 		const client = await page.target().createCDPSession();
 		await client.send('Animation.enable');
-		return client.send('Animation.setPlaybackRate', { playbackRate: rate });
+		return client.send('Animation.setPlaybackRate', { playbackRate: 100 });
 	}
 
 	async _compare(name) {

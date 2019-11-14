@@ -118,6 +118,12 @@ class VisualDiff {
 		else await this._compare(name);
 	}
 
+	async disableAnimations(page) {
+		const client = await page.target().createCDPSession();
+		await client.send('Animation.enable');
+		return client.send('Animation.setPlaybackRate', { playbackRate: 100 });
+	}
+
 	async _compare(name) {
 
 		const currentImage = await this._fs.getCurrentImage(name);

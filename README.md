@@ -54,6 +54,7 @@ Create the visual-diff tests. Provide a ***unique*** name and the location where
 * name screenshots using `this.test.fullTitle()`
 * use the standard Puppeteer API for all its greatness
 * wait for animations to complete before taking screenshot
+* use `disableAnimations` to help avoid timing issues and make tests faster
 
 ```js
 const puppeteer = require('puppeteer');
@@ -68,6 +69,7 @@ describe('d2l-button-icon', function() {
   before(async() => {
     browser = await puppeteer.launch();
     page = await browser.newPage();
+    await visualDiff.disableAnimations(page);
     await page.setViewport({width: 800, height: 800, deviceScaleFactor: 2});
     await page.goto(
       `${visualDiff.getBaseUrl()}/.../button-icon.visual-diff.html`,

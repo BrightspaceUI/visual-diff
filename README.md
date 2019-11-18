@@ -162,5 +162,5 @@ Contributions are welcome, please submit a pull request!
 
 This repository is configured with [EditorConfig](http://editorconfig.org) rules and contributions should make use of them.
 
-[ci-image]: https://travis-ci.com/Brightspace/visual-diff.svg?branch=master
+[ci-image]: https://travis-ci.com/BrightspaceUI/visual-diff.svg?branch=master
 [ci-url]: https://travis-ci.com/BrightspaceUI/visual-diff

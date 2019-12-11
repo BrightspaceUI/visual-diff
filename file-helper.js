@@ -117,9 +117,9 @@ class FileHelper {
 
 	getImage(path) {
 		return new Promise((resolve) => {
-			const image = fs.createReadStream(path).pipe(new PNG()).on('parsed', () => {
-				resolve(image);
-			});
+			const data = fs.readFileSync(path);
+			const image = PNG.sync.read(data);
+			resolve(image);
 		});
 	}
 

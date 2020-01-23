@@ -1,24 +1,23 @@
 const chalk = require('chalk');
+const esDevServer = require('es-dev-server');
 const expect = require('chai').expect;
 const pixelmatch = require('pixelmatch');
 const PNG = require('pngjs').PNG;
-const polyserve = require('polyserve');
 const FileHelper = require('./file-helper.js');
 
 const _isGoldenUpdate = process.argv.includes('--golden') ? process.argv.includes('--golden') : false;
 const _isCI = process.env['CI'] ? true : false;
-const _serverOptions = {npm: true, moduleResolution: 'node'};
+const _serverOptions = esDevServer.createConfig({babel: true, nodeResolve: true, dedupe: true});
 
+let _baseUrl;
 let _server;
-let _serverInfo;
 
 before(async() => {
-	_server = await polyserve.startServer(_serverOptions);
-	const url = polyserve.getServerUrls(_serverOptions, _server).componentUrl;
+	const {server} = await esDevServer.startServer(_serverOptions);
+	_server = server;
 
-	const baseUrl = `${url.protocol}://${url.hostname}:${url.port}/${url.pathname.replace(/\/$/, '')}`;
-	_serverInfo = Object.assign({baseUrl: baseUrl}, url);
-	process.stdout.write(`Started server with base: ${_serverInfo.baseUrl}\n\n`);
+	_baseUrl = `http://localhost:${_server.address().port}`;
+	process.stdout.write(`Started server with base: ${_baseUrl}\n\n`);
 });
 
 after(async() => {
@@ -70,7 +69,7 @@ class VisualDiff {
 				if (_isCI) {
 					process.stdout.write(`\nResults: ${this._fs.getCurrentBaseUrl()}${reportName}\n`);
 				} else {
-					process.stdout.write(`\nResults: ${_serverInfo.baseUrl}${currentTarget}/${reportName}\n`);
+					process.stdout.write(`\nResults: ${_baseUrl}${currentTarget}/${reportName}\n`);
 				}
 			}
 		});
@@ -78,7 +77,7 @@ class VisualDiff {
 	}
 
 	getBaseUrl() {
-		return _serverInfo.baseUrl;
+		return _baseUrl;
 	}
 
 	async getRect(page, selector, margin) {

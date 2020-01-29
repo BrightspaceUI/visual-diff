@@ -43,7 +43,7 @@
     "aws-sdk": "^2",
     "chai": "^4",
     "chalk": "^2.4.2",
-    "pixelmatch": "^5",
-    "polyserve": "^0.27.15"
+    "es-dev-server": "^1",
+    "pixelmatch": "^5"
   }
 }

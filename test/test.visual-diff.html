@@ -12,7 +12,13 @@
 				height: 60px;
 				margin: 40px;
 				text-align: center;
+				transition: opacity 2000ms ease-out;
 				width: 250px;
+			}
+			@media (prefers-reduced-motion: reduce) {
+				div {
+					transition: none;
+				}
 			}
 		</style>
 	</head>

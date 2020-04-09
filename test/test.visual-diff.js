@@ -10,8 +10,7 @@ describe('visual-diff', function() {
 
 	before(async() => {
 		browser = await puppeteer.launch();
-		page = await browser.newPage();
-		await visualDiff.disableAnimations(page);
+		page = await visualDiff.createPage(browser);
 		await page.setViewport({width: 800, height: 800, deviceScaleFactor: 2});
 		await page.goto(`${visualDiff.getBaseUrl()}/test/test.visual-diff.html`, {waitUntil: ['networkidle0', 'load']});
 		await page.bringToFront();
@@ -20,6 +19,12 @@ describe('visual-diff', function() {
 	after(() => browser.close());
 
 	it('element-matches', async function() {
+		const rect = await visualDiff.getRect(page, '#matches');
+		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
+	});
+
+	it('element-matches-transition', async function() {
+		await page.$eval('#matches', elem => elem.style.opacity = '0.2');
 		const rect = await visualDiff.getRect(page, '#matches');
 		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
 	});

@@ -76,6 +76,14 @@ class VisualDiff {
 
 	}
 
+	async createPage(browser) {
+		const page = await browser.newPage();
+		await page.emulateMediaFeatures([{
+			name: 'prefers-reduced-motion', value: 'reduce'
+		}]);
+		return page;
+	}
+
 	getBaseUrl() {
 		return _baseUrl;
 	}

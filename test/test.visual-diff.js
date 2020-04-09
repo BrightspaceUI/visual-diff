@@ -24,7 +24,7 @@ describe('visual-diff', function() {
 	});
 
 	it('element-matches-transition', async function() {
-		page.$eval('#matches', elem => elem.style.opacity = '0.2');
+		await page.$eval('#matches', elem => elem.style.opacity = '0.2');
 		const rect = await visualDiff.getRect(page, '#matches');
 		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
 	});

@@ -47,14 +47,15 @@ Create an `.html` file containing the element to be tested. Below is an example 
 Create the visual-diff tests. Provide a ***unique*** name and the location where screenshots are saved. Use the `VisualDiff` context to navigate, take screenshots, and compare. Append the `--golden` arg to generate goldens. Below is an example of the visual-diff test for the above component.
 
 ***Tips:***
+* use the `createPage(browser)` helper to create a page with the reduced motion preference
 * use `deviceScaleFactor` to account for `dpr` (device-pixel-ratio), especially on retina display
 * run diffs with a different view-port size for media queries; avoid duplicating
 * bring page to front when testing focus (i.e. activate the browser tab)
 * reset focus between tests if not reloading the page
 * name screenshots using `this.test.fullTitle()`
 * use the standard Puppeteer API for all its greatness
-* wait for animations to complete before taking screenshot
-* use `disableAnimations` to help avoid timing issues and make tests faster
+* use the `prefers-reduced-motion: reduce` media query in your component, or wait for animations to complete before taking screenshots
+
 
 ```js
 const puppeteer = require('puppeteer');
@@ -68,8 +69,7 @@ describe('d2l-button-icon', function() {
 
   before(async() => {
     browser = await puppeteer.launch();
-    page = await browser.newPage();
-    await visualDiff.disableAnimations(page);
+    page = await visualDiff.createPage(browser);
     await page.setViewport({width: 800, height: 800, deviceScaleFactor: 2});
     await page.goto(
       `${visualDiff.getBaseUrl()}/.../button-icon.visual-diff.html`,

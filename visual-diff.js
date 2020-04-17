@@ -11,6 +11,7 @@ const _serverOptions = esDevServer.createConfig({babel: true, nodeResolve: true,
 
 let _baseUrl;
 let _server;
+let _goldenUpdateCount = 0;
 
 before(async() => {
 	const {server} = await esDevServer.startServer(_serverOptions);
@@ -24,6 +25,9 @@ after(async() => {
 	if (_server) {
 		await _server.close();
 		process.stdout.write('Stopped server.\n');
+	}
+	if (_isGoldenUpdate) {
+		process.stdout.write(chalk.green(`\n  ${chalk.green(_goldenUpdateCount)} goldens updated.\n`));
 	}
 });
 
@@ -76,11 +80,16 @@ class VisualDiff {
 
 	}
 
-	async createPage(browser) {
+	async createPage(browser, options) {
 		const page = await browser.newPage();
 		await page.emulateMediaFeatures([{
 			name: 'prefers-reduced-motion', value: 'reduce'
 		}]);
+		const viewportOptions = {width: 800, height: 800, deviceScaleFactor: 2};
+		if (options && options.viewport) {
+			Object.assign(viewportOptions, options.viewport);
+		}
+		await page.setViewport(viewportOptions);
 		return page;
 	}
 
@@ -208,6 +217,7 @@ class VisualDiff {
 			const result = await this._fs.updateGolden(name);
 			if (result) process.stdout.write(chalk.gray('golden updated'));
 			else process.stdout.write(chalk.gray('golden update failed'));
+			_goldenUpdateCount++;
 		} else {
 			process.stdout.write(chalk.gray('golden already up to date'));
 		}

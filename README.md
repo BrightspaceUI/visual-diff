@@ -1,5 +1,8 @@
 # visual-diff
-[![Build status][ci-image]][ci-url]
+[![NPM version](https://img.shields.io/npm/v/@brightspace-ui/visual-diff.svg)](https://www.npmjs.org/package/@brightspace-ui/visual-diff)
+[![NPM downloads](https://img.shields.io/npm/dt/@brightspace-ui/visual-diff.svg)](https://www.npmjs.com/package/@brightspace-ui/visual-diff)
+[![Dependabot badge](https://flat.badgen.net/dependabot/BrightspaceUI/visual-diff?icon=dependabot)](https://app.dependabot.com/)
+[![Build status](https://travis-ci.com/BrightspaceUI/visual-diff.svg?branch=master)](https://travis-ci.com/BrightspaceUI/visual-diff)
 
 A visual difference utility using Mocha, Chai, Puppeteer, and PixelMatch.
 
@@ -160,6 +163,3 @@ Contributions are welcome, please submit a pull request!
 ### Code Style
 
 This repository is configured with [EditorConfig](http://editorconfig.org) rules and contributions should make use of them.
-
-[ci-image]: https://travis-ci.com/BrightspaceUI/visual-diff.svg?branch=master
-[ci-url]: https://travis-ci.com/BrightspaceUI/visual-diff

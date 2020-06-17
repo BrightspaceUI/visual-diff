@@ -93,6 +93,12 @@ class VisualDiff {
 		return page;
 	}
 
+	async disableAnimations(page) {
+		const client = await page.target().createCDPSession();
+		await client.send('Animation.enable');
+		return client.send('Animation.setPlaybackRate', { playbackRate: 100 });
+	}
+
 	getBaseUrl() {
 		return _baseUrl;
 	}
@@ -132,12 +138,6 @@ class VisualDiff {
 
 		if (_isGoldenUpdate) return this._updateGolden(name);
 		else await this._compare(name);
-	}
-
-	async disableAnimations(page) {
-		const client = await page.target().createCDPSession();
-		await client.send('Animation.enable');
-		return client.send('Animation.setPlaybackRate', { playbackRate: 100 });
 	}
 
 	async _compare(name) {
@@ -191,36 +191,6 @@ class VisualDiff {
 		}
 
 		process.stdout.write('\n');
-
-	}
-
-	async _updateGolden(name) {
-
-		const currentImage = await this._fs.getCurrentImage(name);
-		const goldenImage = await this._fs.getGoldenImage(name);
-
-		let updateGolden = false;
-		if (!goldenImage) {
-			updateGolden = true;
-		} else if (currentImage.width !== goldenImage.width || currentImage.height !== goldenImage.height) {
-			updateGolden = true;
-		} else {
-			const diff = new PNG({width: currentImage.width, height: currentImage.height});
-			const pixelsDiff = pixelmatch(
-				currentImage.data, goldenImage.data, diff.data, currentImage.width, currentImage.height, {threshold: this._tolerance}
-			);
-			if (pixelsDiff !== 0) updateGolden = true;
-		}
-
-		process.stdout.write('      ');
-		if (updateGolden) {
-			const result = await this._fs.updateGolden(name);
-			if (result) process.stdout.write(chalk.gray('golden updated'));
-			else process.stdout.write(chalk.gray('golden update failed'));
-			_goldenUpdateCount++;
-		} else {
-			process.stdout.write(chalk.gray('golden already up to date'));
-		}
 
 	}
 
@@ -309,6 +279,36 @@ class VisualDiff {
 		`;
 
 		await this._fs.writeFile(fileName, html);
+	}
+
+	async _updateGolden(name) {
+
+		const currentImage = await this._fs.getCurrentImage(name);
+		const goldenImage = await this._fs.getGoldenImage(name);
+
+		let updateGolden = false;
+		if (!goldenImage) {
+			updateGolden = true;
+		} else if (currentImage.width !== goldenImage.width || currentImage.height !== goldenImage.height) {
+			updateGolden = true;
+		} else {
+			const diff = new PNG({width: currentImage.width, height: currentImage.height});
+			const pixelsDiff = pixelmatch(
+				currentImage.data, goldenImage.data, diff.data, currentImage.width, currentImage.height, {threshold: this._tolerance}
+			);
+			if (pixelsDiff !== 0) updateGolden = true;
+		}
+
+		process.stdout.write('      ');
+		if (updateGolden) {
+			const result = await this._fs.updateGolden(name);
+			if (result) process.stdout.write(chalk.gray('golden updated'));
+			else process.stdout.write(chalk.gray('golden update failed'));
+			_goldenUpdateCount++;
+		} else {
+			process.stdout.write(chalk.gray('golden already up to date'));
+		}
+
 	}
 
 }

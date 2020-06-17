@@ -26,14 +26,14 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "babel-eslint": "^10",
-    "eslint": "^6",
-    "eslint-config-brightspace": "^0.6",
+    "eslint": "^7",
+    "eslint-config-brightspace": "^0.9",
     "eslint-plugin-html": "^6",
     "eslint-plugin-lit": "^1",
     "eslint-plugin-sort-class-members": "^1",
     "mocha": "^8",
     "puppeteer": "^4",
-    "simple-git": "^1.126.0"
+    "simple-git": "^2"
   },
   "peerDependencies": {
     "mocha": "^8",

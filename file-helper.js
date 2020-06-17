@@ -41,12 +41,21 @@ class FileHelper {
 		return name.replace(/ /g, '-');
 	}
 
+	getCurrentBaseUrl() {
+		if (!this.isCI) return null;
+		return this.s3.getCurrentObjectUrl('');
+	}
+
 	getCurrentFiles() {
 		return fs.readdirSync(this.currentDir);
 	}
 
-	getGoldenFiles() {
-		return fs.readdirSync(this.goldenDir);
+	getCurrentImage(name) {
+		return this.getImage(this.getCurrentPath(name));
+	}
+
+	getCurrentImageBase64(name) {
+		return this.getImageBase64(this.getCurrentPath(name));
 	}
 
 	getCurrentPath(name) {
@@ -54,17 +63,65 @@ class FileHelper {
 		return `${this.currentDir}/${this.formatName(name)}${ext}`;
 	}
 
+	getCurrentTarget() {
+		return this.isCI ? this.s3.currentConfig.target : this.currentDir;
+	}
+
+	getDiffImageBase64(name) {
+		return this.getImageBase64(this.getCurrentPath(name));
+	}
+
+	getGoldenFiles() {
+		return fs.readdirSync(this.goldenDir);
+	}
+
+	getGoldenImage(name) {
+		const hasGoldenFile = this.hasGoldenFile(name);
+		if (!hasGoldenFile) return null;
+		return this.getImage(this.getGoldenPath(name));
+	}
+
+	getGoldenImageBase64(name) {
+		const hasGoldenFile = this.hasGoldenFile(name);
+		if (!hasGoldenFile) return null;
+		return this.getImageBase64(this.getGoldenPath(name));
+	}
+
 	getGoldenPath(name) {
 		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
 		return `${this.goldenDir}/${this.formatName(name)}${ext}`;
 	}
 
-	getCurrentTarget() {
-		return this.isCI ? this.s3.currentConfig.target : this.currentDir;
-	}
-
 	getGoldenTarget() {
 		return this.goldenDir;
+	}
+
+	getGoldenUrl(name) {
+		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
+		name = `${this.formatName(name)}${ext}`;
+		if (!this.isCI) return `${this.goldenSubDir}/${name}`;
+		const rootDir = this.goldenDir.replace('/home/travis/build', 'https://raw.githubusercontent.com');
+		const rootDirBranch = rootDir.replace(process.env.TRAVIS_REPO_SLUG, `${process.env.TRAVIS_REPO_SLUG}/${process.env.TRAVIS_PULL_REQUEST_BRANCH}`);
+		return `${rootDirBranch}/${name}`;
+	}
+
+	getImage(path) {
+		return new Promise((resolve) => {
+			const data = fs.readFileSync(path);
+			const image = PNG.sync.read(data);
+			resolve(image);
+		});
+	}
+
+	getImageBase64(path) {
+		return new Promise((resolve) => {
+			let image = '';
+			fs.createReadStream(path, {encoding: 'base64'}).on('data', (data) => {
+				image += data;
+			}).on('end', () => {
+				resolve(image);
+			});
+		});
 	}
 
 	getReportFileName() {
@@ -91,49 +148,6 @@ class FileHelper {
 			+ milliseconds;
 	}
 
-	getCurrentImage(name) {
-		return this.getImage(this.getCurrentPath(name));
-	}
-
-	getCurrentImageBase64(name) {
-		return this.getImageBase64(this.getCurrentPath(name));
-	}
-
-	getDiffImageBase64(name) {
-		return this.getImageBase64(this.getCurrentPath(name));
-	}
-
-	getGoldenImage(name) {
-		const hasGoldenFile = this.hasGoldenFile(name);
-		if (!hasGoldenFile) return null;
-		return this.getImage(this.getGoldenPath(name));
-	}
-
-	getGoldenImageBase64(name) {
-		const hasGoldenFile = this.hasGoldenFile(name);
-		if (!hasGoldenFile) return null;
-		return this.getImageBase64(this.getGoldenPath(name));
-	}
-
-	getImage(path) {
-		return new Promise((resolve) => {
-			const data = fs.readFileSync(path);
-			const image = PNG.sync.read(data);
-			resolve(image);
-		});
-	}
-
-	getImageBase64(path) {
-		return new Promise((resolve) => {
-			let image = '';
-			fs.createReadStream(path, {encoding: 'base64'}).on('data', (data) => {
-				image += data;
-			}).on('end', () => {
-				resolve(image);
-			});
-		});
-	}
-
 	hasGoldenFile(name) {
 		const goldenPath = this.getGoldenPath(name);
 		return fs.existsSync(goldenPath);
@@ -158,27 +172,6 @@ class FileHelper {
 		return true;
 	}
 
-	getCurrentBaseUrl() {
-		if (!this.isCI) return null;
-		return this.s3.getCurrentObjectUrl('');
-	}
-
-	getGoldenUrl(name) {
-		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
-		name = `${this.formatName(name)}${ext}`;
-		if (!this.isCI) return `${this.goldenSubDir}/${name}`;
-		const rootDir = this.goldenDir.replace('/home/travis/build', 'https://raw.githubusercontent.com');
-		const rootDirBranch = rootDir.replace(process.env.TRAVIS_REPO_SLUG, `${process.env.TRAVIS_REPO_SLUG}/${process.env.TRAVIS_PULL_REQUEST_BRANCH}`);
-		return `${rootDirBranch}/${name}`;
-	}
-
-	async writeFile(name, content) {
-		if (!name || name.length === 0 || !content || content.length === 0) return;
-		const filePath = this.getCurrentPath(name);
-		fs.writeFileSync(filePath, content);
-		if (this.isCI) await this.s3.uploadFile(filePath);
-	}
-
 	async writeCurrentStream(name, stream) {
 		const filePath = this.getCurrentPath(name);
 		const writeStream = () => {
@@ -190,6 +183,13 @@ class FileHelper {
 			return promise;
 		};
 		await writeStream();
+	}
+
+	async writeFile(name, content) {
+		if (!name || name.length === 0 || !content || content.length === 0) return;
+		const filePath = this.getCurrentPath(name);
+		fs.writeFileSync(filePath, content);
+		if (this.isCI) await this.s3.uploadFile(filePath);
 	}
 
 }

@@ -33,7 +33,7 @@
     "eslint-plugin-sort-class-members": "^1",
     "mocha": "^8",
     "puppeteer": "^2",
-    "simple-git": "^1.126.0"
+    "simple-git": "^2.7.0"
   },
   "peerDependencies": {
     "mocha": "^8",

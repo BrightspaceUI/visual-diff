@@ -32,12 +32,12 @@
     "eslint-plugin-lit": "^1",
     "eslint-plugin-sort-class-members": "^1",
     "mocha": "^8",
-    "puppeteer": "^2",
+    "puppeteer": "^4",
     "simple-git": "^1.126.0"
   },
   "peerDependencies": {
     "mocha": "^8",
-    "puppeteer": "^2"
+    "puppeteer": "^4"
   },
   "dependencies": {
     "aws-sdk": "^2",

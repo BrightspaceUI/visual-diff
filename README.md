@@ -139,7 +139,7 @@ The visual diff test reports will be stored in Amazon S3 and the Goldens are sto
 ```shell
 travis encrypt VISUAL_DIFF_S3_ID="SECRET" --add --com
 travis encrypt VISUAL_DIFF_S3_SECRET="SECRET" --add --com
-travis encrypt GITHUB_RELEASE_TOKEN="SECRET" --add --com
+travis encrypt GITHUB_TOKEN="SECRET" --add --com
 ```
 
 2. Edit `.travis.yml` to include comments above the generated secrets, identifying what the secrets are.

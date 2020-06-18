@@ -2,7 +2,8 @@
 
 const git = require('simple-git/promise')();
 
-const remote = `https://${process.env.GITHUB_RELEASE_TOKEN}@github.com/${process.env.TRAVIS_REPO_SLUG}`;
+const token = process.env.GITHUB_TOKEN || process.env.GITHUB_RELEASE_TOKEN;
+const remote = `https://${token}@github.com/${process.env.TRAVIS_REPO_SLUG}`;
 const branchName = process.env.TRAVIS_BRANCH;
 
 function commit() {

@@ -8,7 +8,7 @@ const branchName = process.env.TRAVIS_BRANCH;
 
 function commit() {
 
-	git.addConfig('user.name', 'BrightspaceGitHubReader');
+	git.addConfig('user.name', 'brightspace-bot');
 	git.addConfig('user.email', 'brightspacegithubreader@d2l.com');
 	git.addConfig('push.default', 'simple');
 	git.addConfig('remote.origin.fetch', 'refs/heads/*:refs/remotes/origin/*');

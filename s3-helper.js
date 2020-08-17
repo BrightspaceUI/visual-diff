@@ -18,7 +18,7 @@ class S3Helper {
 
 	constructor(name, config, isCI) {
 		if (config) _s3Config = Object.assign(_s3Config, config);
-		if (isCI) this.currentConfig = Object.assign({}, _s3Config, { target: `${_s3Config.target}/${process.env['TRAVIS_REPO_SLUG']}/${name}`});
+		if (isCI) this.currentConfig = Object.assign({}, _s3Config, { target: `${_s3Config.target}/${process.env['TRAVIS_REPO_SLUG']}/${name}` });
 	}
 
 	getCurrentObjectUrl(name) {

@@ -116,7 +116,7 @@ class FileHelper {
 	getImageBase64(path) {
 		return new Promise((resolve) => {
 			let image = '';
-			fs.createReadStream(path, {encoding: 'base64'}).on('data', (data) => {
+			fs.createReadStream(path, { encoding: 'base64' }).on('data', (data) => {
 				image += data;
 			}).on('end', () => {
 				resolve(image);

@@ -11,7 +11,7 @@ describe('visual-diff', function() {
 	before(async() => {
 		browser = await puppeteer.launch();
 		page = await visualDiff.createPage(browser);
-		await page.goto(`${visualDiff.getBaseUrl()}/test/test.visual-diff.html`, {waitUntil: ['networkidle0', 'load']});
+		await page.goto(`${visualDiff.getBaseUrl()}/test/test.visual-diff.html`, { waitUntil: ['networkidle0', 'load'] });
 		await page.bringToFront();
 	});
 

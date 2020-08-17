@@ -7,14 +7,14 @@ const FileHelper = require('./file-helper.js');
 
 const _isGoldenUpdate = process.argv.includes('--golden') ? process.argv.includes('--golden') : false;
 const _isCI = process.env['CI'] ? true : false;
-const _serverOptions = esDevServer.createConfig({babel: true, nodeResolve: true, dedupe: true});
+const _serverOptions = esDevServer.createConfig({ babel: true, nodeResolve: true, dedupe: true });
 
 let _baseUrl;
 let _server;
 let _goldenUpdateCount = 0;
 
 before(async() => {
-	const {server} = await esDevServer.startServer(_serverOptions);
+	const { server } = await esDevServer.startServer(_serverOptions);
 	_server = server;
 
 	_baseUrl = `http://localhost:${_server.address().port}`;
@@ -85,7 +85,7 @@ class VisualDiff {
 		await page.emulateMediaFeatures([{
 			name: 'prefers-reduced-motion', value: 'reduce'
 		}]);
-		const viewportOptions = {width: 800, height: 800, deviceScaleFactor: 2};
+		const viewportOptions = { width: 800, height: 800, deviceScaleFactor: 2 };
 		if (options && options.viewport) {
 			Object.assign(viewportOptions, options.viewport);
 		}
@@ -132,7 +132,7 @@ class VisualDiff {
 	}
 
 	async screenshotAndCompare(page, name, options) {
-		const info = Object.assign({path: this._fs.getCurrentPath(name)}, options);
+		const info = Object.assign({ path: this._fs.getCurrentPath(name) }, options);
 
 		await page.screenshot(info);
 
@@ -151,9 +151,9 @@ class VisualDiff {
 		let pixelsDiff, diffImageBase64;
 
 		if (goldenImage && currentImage.width === goldenImage.width && currentImage.height === goldenImage.height) {
-			const diff = new PNG({width: currentImage.width, height: currentImage.height});
+			const diff = new PNG({ width: currentImage.width, height: currentImage.height });
 			pixelsDiff = pixelmatch(
-				currentImage.data, goldenImage.data, diff.data, currentImage.width, currentImage.height, {threshold: this._tolerance}
+				currentImage.data, goldenImage.data, diff.data, currentImage.width, currentImage.height, { threshold: this._tolerance }
 			);
 			if (pixelsDiff !== 0) {
 				await this._fs.writeCurrentStream(`${name}-diff`, diff.pack());
@@ -292,9 +292,9 @@ class VisualDiff {
 		} else if (currentImage.width !== goldenImage.width || currentImage.height !== goldenImage.height) {
 			updateGolden = true;
 		} else {
-			const diff = new PNG({width: currentImage.width, height: currentImage.height});
+			const diff = new PNG({ width: currentImage.width, height: currentImage.height });
 			const pixelsDiff = pixelmatch(
-				currentImage.data, goldenImage.data, diff.data, currentImage.width, currentImage.height, {threshold: this._tolerance}
+				currentImage.data, goldenImage.data, diff.data, currentImage.width, currentImage.height, { threshold: this._tolerance }
 			);
 			if (pixelsDiff !== 0) updateGolden = true;
 		}

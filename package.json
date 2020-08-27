@@ -1,6 +1,6 @@
 {
   "name": "@brightspace-ui/visual-diff",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Visual difference utility using Mocha, Chai, Puppeteer, and PixelMatch",
   "repository": "https://github.com/BrightspaceUI/visual-diff.git",
   "publishConfig": {
@@ -18,6 +18,7 @@
     "commit-goldens": "bin/commit-goldens.js"
   },
   "files": [
+    "/helpers",
     "file-helper.js",
     "s3-helper.js",
     "visual-diff.js"

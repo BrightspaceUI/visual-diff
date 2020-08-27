@@ -1,4 +1,4 @@
-module.exports = async (page, selector, margin) => {
+module.exports = async(page, selector, margin) => {
 	margin = (margin !== undefined) ? margin : 10;
 	return page.$eval(selector, (elem, margin) => {
 		const leftMargin = (elem.offsetLeft < margin ? 0 : margin);

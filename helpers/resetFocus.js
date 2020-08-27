@@ -1,4 +1,4 @@
-module.exports = async (page) => {
+module.exports = async(page) => {
 	await page.evaluate(() => {
 		let elem = document.querySelector('#vd-focus');
 		if (!elem) {

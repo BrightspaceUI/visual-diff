@@ -35,6 +35,12 @@ class VisualDiff {
 
 	constructor(name, dir, options) {
 
+		this.createPage = require('./helpers/createPage');
+		this.disableAnimations = require('./helpers/disableAnimations');
+		this.getRect = require('./helpers/getRect');
+		this.oneEvent = require('./helpers/oneEvent');
+		this.resetFocus = require('./helpers/resetFocus');
+
 		this._results = [];
 		this._fs = new FileHelper(name, `${dir ? dir : process.cwd()}/screenshots`, options ? options.upload : null, _isCI);
 		this._dpr = options && options.dpr ? options.dpr : 2;
@@ -80,55 +86,8 @@ class VisualDiff {
 
 	}
 
-	async createPage(browser, options) {
-		const page = await browser.newPage();
-		await page.emulateMediaFeatures([{
-			name: 'prefers-reduced-motion', value: 'reduce'
-		}]);
-		const viewportOptions = { width: 800, height: 800, deviceScaleFactor: 2 };
-		if (options && options.viewport) {
-			Object.assign(viewportOptions, options.viewport);
-		}
-		await page.setViewport(viewportOptions);
-		return page;
-	}
-
-	async disableAnimations(page) {
-		const client = await page.target().createCDPSession();
-		await client.send('Animation.enable');
-		return client.send('Animation.setPlaybackRate', { playbackRate: 100 });
-	}
-
 	getBaseUrl() {
 		return _baseUrl;
-	}
-
-	async getRect(page, selector, margin) {
-		margin = (margin !== undefined) ? margin : 10;
-		return page.$eval(selector, (elem, margin) => {
-			const leftMargin = (elem.offsetLeft < margin ? 0 : margin);
-			const topMargin = (elem.offsetTop < margin ? 0 : margin);
-			return {
-				x: elem.offsetLeft - leftMargin,
-				y: elem.offsetTop - topMargin,
-				width: elem.offsetWidth + (leftMargin * 2),
-				height: elem.offsetHeight + (topMargin * 2)
-			};
-		}, margin);
-	}
-
-	async resetFocus(page) {
-		await page.evaluate(() => {
-			let elem = document.querySelector('#vd-focus');
-			if (!elem) {
-				elem = document.createElement('button');
-				elem.id = 'vd-focus';
-				elem.innerHTML = 'reset focus';
-				elem.style.opacity = 0;
-				document.body.insertBefore(elem, document.body.firstChild);
-			}
-		});
-		await page.click('#vd-focus');
 	}
 
 	async screenshotAndCompare(page, name, options) {

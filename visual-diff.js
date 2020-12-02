@@ -88,9 +88,9 @@ class VisualDiff {
 			if (this._updateError) {
 				process.stdout.write(chalk.bold.red(`      [Attention: ${chalk.yellow('Golden')} update failed!]\n`));
 			} else if (this._updateGolden && _isLocalGoldenUpdate) {
-				process.stdout.write(chalk.green(`      [Golden updated successfully.]\n`));
+				process.stdout.write(chalk.green('      [Golden updated successfully.]\n'));
 			} else if (_isLocalGoldenUpdate) {
-				process.stdout.write(chalk.grey(`      [Golden already up to date.]\n`));
+				process.stdout.write(chalk.grey('      [Golden already up to date.]\n'));
 			}
 		});
 
@@ -244,7 +244,7 @@ class VisualDiff {
 			const workflow = process.env['GITHUB_WORKFLOW'];
 			const runNum = process.env['GITHUB_RUN_NUMBER'];
 			const pr = /refs\/pull\/(\d+)\/merge/g.exec(process.env['GITHUB_REF']);
-			const prNum = pr && pr[1] ? pr[1] : null; 
+			const prNum = pr && pr[1] ? pr[1] : null;
 			const prUrl = `${process.env['GITHUB_SERVER_URL']}/${process.env['GITHUB_REPOSITORY']}/pull/${prNum}`;
 			const branch = process.env['GITHUB_REF'];
 			const sha = process.env['GITHUB_SHA'];

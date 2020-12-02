@@ -181,11 +181,13 @@ class VisualDiff {
 			if (image) return createImageHtml('Golden', image);
 			else return createNoImageHtml('Golden', defaultImage, 'No golden.');
 		};
-		const createDiffHtml = (diff, defaultImage) => {
+		const createDiffHtml = (diff, defaultImage, goldenImage) => {
 			if (diff.pixelsDiff === 0) {
 				return createNoImageHtml('Difference (0px)', defaultImage, 'Images match.');
 			} else if (diff.pixelsDiff > 0) {
 				return createArtifactHtml('Difference', `${diff.pixelsDiff / this._dpr}px`, `<img src="data:image/png;base64,${diff.base64Image}" style="width: ${defaultImage.width / this._dpr}px; height: ${defaultImage.height / this._dpr}px;" alt="Difference" />`);
+			} else if (goldenImage) {
+				return createNoImageHtml('Difference', defaultImage, 'Images are not the same size.');
 			} else {
 				return createNoImageHtml('Difference', defaultImage, 'No image.');
 			}
@@ -215,7 +217,7 @@ class VisualDiff {
 				<div class="compare">
 					${createCurrentHtml(result.current)}
 					${createGoldenHtml(result.golden, result.current)}
-					${createDiffHtml(result.diff, result.current)}
+					${createDiffHtml(result.diff, result.current, result.golden)}
 				</div>`;
 		}).join('\n');
 

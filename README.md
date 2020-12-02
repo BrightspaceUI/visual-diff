@@ -10,13 +10,15 @@ A visual difference utility using Mocha, Chai, Puppeteer, and PixelMatch.
 
 ## Installation
 
-Install `visual-diff`.
+This package is designed to be used alongside the [visual-diff github action](https://github.com/BrightspaceUI/actions/tree/master/visual-diff).  That action will handle installing so you don't need to include `visual-diff` and `puppeteer` in your repo's `devDependencies`.
+
+If you want to install locally for test creation and troubleshooting, run:
 ```shell
-npm i @brightspace-ui/visual-diff
-npm i puppeteer
+npm i mocha -g
+npm i @brightspace-ui/visual-diff puppeteer --no-save
 ```
 
-## Usage
+## Writing Tests
 
 **Note:** Both the `.html` and the `.js` file need to end with the `.visual-diff` suffix for the tests to run correctly.
 
@@ -45,7 +47,7 @@ Create an `.html` file containing the element to be tested. Below is an example 
 
 ### Create Visual-Diff Tests
 
-Create the visual-diff tests. Provide a ***unique*** name and the location where screenshots are saved. Use the `VisualDiff` context to navigate, take screenshots, and compare. Append the `--golden` arg to generate goldens. Below is an example of the visual-diff test for the above component.
+Create the visual-diff tests. Provide a ***unique*** name and the location where screenshots are saved. Use the `VisualDiff` context to navigate, take screenshots, and compare.  Below is an example of the visual-diff test for the above component.
 
 ***Tips:***
 * use the `createPage(browser)` helper to create a page with the reduced motion preference, default viewport dimensions (800x800), and device scaling factor.
@@ -89,70 +91,35 @@ describe('d2l-button-icon', function() {
 });
 ```
 
-### Running Tests
+## Running Tests
 
-First, generate goldens using `--golden` arg before making changes.
+### In CI
 
-```json
-"scripts": {
-  "test:diff:golden": "mocha './test/**/*.visual-diff.js' -t 10000 --golden"
-},
+This package is designed to be used alongside the [visual-diff github action](https://github.com/BrightspaceUI/actions/tree/master/visual-diff).  Check out the README there for setup details.
+
+The action will handle installation and running the tests, as well as automatically opening a PR for any golden updates that are needed.
+
+### Locally
+
+First, generate goldens using the `--golden` arg before making changes.
+```shell
+mocha './test/**/*.visual-diff.js' -t 10000 --golden
 ```
 
 Make desired code changes, then run the tests to compare.
-
-```json
-"scripts": {
-  "test:diff": "mocha './test/**/*.visual-diff.js' -t 10000"
-},
+```shell
+mocha './test/**/*.visual-diff.js' -t 10000
 ```
 
-In Travis, commit the updates to the goldens.
-
-```json
-"scripts": {
-  "test:diff:golden:commit": "commit-goldens"
-},
+Because of the difference in local and CI environments, you can't commit the goldens you create locally.  This workflow is only to help troubleshoot and write new tests.  You will probably want to add the following to your `.gitignore` file:
+```
+<path_to_test>/test/screenshots/current/
+<path_to_test>/test/screenshots/golden/
 ```
 
 ***Tips:***
 * specify a longer Mocha timeout (while a screenshot is worth a 1000 tests, each screenshot is slower compared to a typical  unit test)
-* use Mocha's grep option to run a subset (i.e. `npm run test:diff -- -g some-pattern`)
-* to update the goldens in Travis, do the following:
-	1. In recent build for your repo, in top right corner click "More options" > "Trigger build"
-	2. Enter the following parameters:
-		* Branch: your current branch (NOT master)
-		* Custom Commit Message: Updating goldens for <component>
-		* Custom config: `script: npm run build && npm run test:diff:golden && npm run test:diff:golden:commit`
-			* For a specific subset of goldens: `script: npm run build && npm run test:diff:golden -- -g <component e.g., button> && npm run test:diff:golden:commit`
-
-### Running in CI
-
-In order to run this utility in CI, you need to add some secure environment variables to your Travis CI file.
-
-The visual diff test reports will be stored in Amazon S3 and the Goldens are stored in the GitHub repository, and added to the current PR branch when initially generated or updated.
-
-1. Run the following commands with the appropriate secret value. For D2L projects, reach out to us to setup (recommended), otherwise use config/keys for your own Amazon S3 bucket and GitHub repo.
-
-```shell
-travis encrypt VISUAL_DIFF_S3_ID="SECRET" --add --com
-travis encrypt VISUAL_DIFF_S3_SECRET="SECRET" --add --com
-travis encrypt GITHUB_TOKEN="SECRET" --add --com
-```
-
-2. Edit `.travis.yml` to include comments above the generated secrets, identifying what the secrets are.
-
-Example:
-```yaml
-env:
-  global:
-  # VISUAL_DIFF_S3_ID
-  - secure: TOKEN
-  # VISUAL_DIFF_S3_SECRET
-  - secure: TOKEN
-  # GITHUB_RELEASE_TOKEN
-  - secure: TOKEN
-```
+* use Mocha's grep option to run a subset locally (i.e. `npm run test:diff -- -g some-pattern`)
 
 ## Versioning & Releasing
 

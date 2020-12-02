@@ -4,6 +4,7 @@ const expect = require('chai').expect;
 const pixelmatch = require('pixelmatch');
 const PNG = require('pngjs').PNG;
 const FileHelper = require('./file-helper.js');
+const fs = require('fs');
 
 const _isCI = process.env['CI'] ? true : false;
 const _isLocalTestRun = !_isCI && !process.argv.includes('--golden');
@@ -14,6 +15,7 @@ let _baseUrl;
 let _server;
 let _goldenUpdateCount = 0;
 let _goldenErrorCount = 0;
+let _failedReportLinks;
 
 before(async() => {
 	const { server } = await esDevServer.startServer(_serverOptions);
@@ -24,6 +26,9 @@ before(async() => {
 });
 
 after(async() => {
+	if (_isCI && _failedReportLinks) {
+		fs.writeFileSync('failed-reports.txt', _failedReportLinks);
+	}
 	if (_server) {
 		await _server.close();
 		process.stdout.write('Stopped server.\n');
@@ -45,6 +50,7 @@ class VisualDiff {
 		this.resetFocus = require('./helpers/resetFocus');
 
 		this._results = [];
+		this._hasTestFailures = false;
 		this._fs = new FileHelper(name, `${dir ? dir : process.cwd()}/screenshots`, _isCI);
 		this._dpr = options && options.dpr ? options.dpr : 2;
 		this._tolerance = options && options.tolerance ? options.tolerance : 0;
@@ -99,6 +105,9 @@ class VisualDiff {
 				await this._generateHtml(reportName, this._results);
 				if (_isCI) {
 					process.stdout.write(`\n${chalk.gray('Results:')} ${this._fs.getCurrentBaseUrl()}${reportName}\n`);
+					if (this._hasTestFailures) {
+						_failedReportLinks = _failedReportLinks ? _failedReportLinks + `,${this._fs.getCurrentBaseUrl()}${reportName}` : `${this._fs.getCurrentBaseUrl()}${reportName}`;
+					}
 				} else {
 					process.stdout.write(`\n${chalk.gray('Results:')} ${_baseUrl}${currentTarget}/${reportName}\n`);
 				}
@@ -146,6 +155,7 @@ class VisualDiff {
 		}
 
 		if (this._updateGolden && !_isLocalTestRun) {
+			this._hasTestFailures = true;
 			const result = await this._fs.updateGolden(name);
 			if (result) {
 				_goldenUpdateCount++;

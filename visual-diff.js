@@ -55,7 +55,7 @@ class VisualDiff {
 				currentTarget = currentTarget.replace(process.cwd(), '');
 				goldenTarget = goldenTarget.replace(process.cwd(), '');
 			} else {
-				goldenTarget = goldenTarget.replace('/home/travis/build/', '');
+				goldenTarget = goldenTarget.replace('/home/runner/work/', '');
 			}
 
 			process.stdout.write(`\n${chalk.hex('#DCDCAA')('    Golden:')} ${goldenTarget}\n\n`);
@@ -188,16 +188,20 @@ class VisualDiff {
 		};
 		const createMetaHtml = () => {
 			if (!_isCI) return '';
-			const branch = process.env['TRAVIS_BRANCH'];
-			const sha = process.env['TRAVIS_COMMIT'];
-			const message = process.env['TRAVIS_COMMIT_MESSAGE'];
-			const url = process.env['TRAVIS_BUILD_WEB_URL'];
-			const build = process.env['TRAVIS_BUILD_NUMBER'];
+			const runUrl = `${process.env['GITHUB_SERVER_URL']}/${process.env['GITHUB_REPOSITORY']}/actions/runs/${process.env['GITHUB_RUN_ID']}`;
+			const workflow = process.env['GITHUB_WORKFLOW'];
+			const runNum = process.env['GITHUB_RUN_NUMBER'];
+			const pr = /refs\/pull\/(\d+)\/merge/g.exec(process.env['GITHUB_REF']);
+			const prNum = pr && pr[1] ? pr[1] : null; 
+			const prUrl = `${process.env['GITHUB_SERVER_URL']}/${process.env['GITHUB_REPOSITORY']}/pull/${prNum}`;
+			const branch = process.env['GITHUB_REF'];
+			const sha = process.env['GITHUB_SHA'];
+			const actor = process.env['GITHUB_ACTOR'];
 			return `
 				<div class="meta">
-					<div><a href="${url}">Build #${build}</a></div>
-					<div>${branch} (${sha})</div>
-					<div>${message}</div>
+					<div><a href="${runUrl}">${workflow} Run #${runNum}</a></div>
+					${ prNum ? `<div><a href="${prUrl}">PR: #${prNum}</a></div>` : `<div>Commit to ${branch}: ${sha}</div>`}
+					<div>By ${actor}</div>
 				</div>`;
 		};
 		const diffHtml = results.map((result) => {

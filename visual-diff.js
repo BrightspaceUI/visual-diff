@@ -42,7 +42,7 @@ class VisualDiff {
 		this.resetFocus = require('./helpers/resetFocus');
 
 		this._results = [];
-		this._fs = new FileHelper(name, `${dir ? dir : process.cwd()}/screenshots`, options ? options.upload : null, _isCI);
+		this._fs = new FileHelper(name, `${dir ? dir : process.cwd()}/screenshots`, _isCI);
 		this._dpr = options && options.dpr ? options.dpr : 2;
 		this._tolerance = options && options.tolerance ? options.tolerance : 0;
 

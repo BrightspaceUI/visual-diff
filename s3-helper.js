@@ -3,31 +3,47 @@ const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
 
-let _s3Config = {
-	bucket: 'visualdiff.gaudi.d2l',
-	key: 'S3',
-	target: 'visualdiff.gaudi.d2l/screenshots',
-	region: 'ca-central-1',
-	creds: {
-		accessKeyId: process.env['VISUAL_DIFF_S3_ID'],
-		secretAccessKey: process.env['VISUAL_DIFF_S3_SECRET']
-	}
-};
+const repo = process.env['GITHUB_REPOSITORY'];
+let _s3Config;
+
+async function getS3Creds() {
+    return new Promise((resolve, reject) => {
+        const timestamp = (new Date()).getTime();
+		const formattedRepo = repo.replace(/\//g, '-');
+        const params = {
+        	RoleArn: 'arn:aws:iam::037018655140:role/visual-diff-githubactions-access',
+        	RoleSessionName: `${formattedRepo}-visual-diff-${timestamp}`
+		};
+
+        const sts = new AWS.STS();
+        sts.assumeRole(params, (err, data) => {
+			if (err) {
+				process.stdout.write(`\n${chalk.red(err.toString())}`);
+				reject(err);
+			}
+			else {
+				resolve({
+					accessKeyId: data.Credentials.AccessKeyId,
+					secretAccessKey: data.Credentials.SecretAccessKey,
+					sessionToken: data.Credentials.SessionToken
+				});
+			}
+        });
+    });
+}
 
 class S3Helper {
 
-	constructor(name, config, isCI) {
-		if (config) _s3Config = Object.assign(_s3Config, config);
-		if (isCI) this.currentConfig = Object.assign({}, _s3Config, { target: `${_s3Config.target}/${process.env['TRAVIS_REPO_SLUG']}/${name}` });
+	constructor(name) {
+		this.target = `visual-diff.d2l.dev/screenshots/${repo}/${name}`;
 	}
 
-	getCurrentObjectUrl(name) {
-		return `https://s3.${this.currentConfig.region}.amazonaws.com/${this.currentConfig.target}/${name}`;
+	getCurrentBaseUrl() {
+		return `https://${this.target}/`;
 	}
 
-	uploadFile(filePath) {
-		const config = this.currentConfig;
-		const promise = new Promise((resolve, reject) => {
+	async uploadFile(filePath) {
+		const promise = new Promise(async(resolve, reject) => {
 
 			const getContentType = (filePath) => {
 				if (filePath.endsWith('.html')) return 'text/html';
@@ -35,17 +51,21 @@ class S3Helper {
 				return;
 			};
 
-			const s3 = new AWS.S3({
-				apiVersion: 'latest',
-				accessKeyId: config.creds.accessKeyId,
-				secretAccessKey: config.creds.secretAccessKey,
-				region: config.region
-			});
+			if(!_s3Config) {
+				try {
+					_s3Config = await getS3Creds();
+					_s3Config.apiVersion = 'latest';
+					_s3Config.region = 'ca-central-1';
+				} catch(err) {
+					process.stdout.write(`\n${chalk.red(err.toString())}`);
+				}	
+			}
 
+			const s3 = new AWS.S3(_s3Config);
+				
 			const params = {
-				ACL: 'public-read',
 				Body: '',
-				Bucket: config.target,
+				Bucket: this.target,
 				ContentDisposition: 'inline',
 				ContentType: getContentType(filePath),
 				Key: ''

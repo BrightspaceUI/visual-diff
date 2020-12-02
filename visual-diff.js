@@ -58,13 +58,13 @@ class VisualDiff {
 				goldenTarget = goldenTarget.replace('/home/runner/work/', '');
 			}
 
-			process.stdout.write(`\n${chalk.hex('#DCDCAA')('    Golden:')} ${goldenTarget}\n\n`);
+			process.stdout.write(`\n${chalk.yellow('    Golden:')} ${goldenTarget}\n\n`);
 
 			if (!_isGoldenUpdate && !_isCI) {
 				// fail fast if no goldens
 				const goldenFiles = await this._fs.getGoldenFiles();
 				if (goldenFiles.length === 0) {
-					process.stdout.write(`\n${chalk.hex('#DCDCAA')('No goldens!  Did you forget to generate them?')}\n${goldenTarget}\n\n`);
+					process.stdout.write(`\n${chalk.red('No goldens!  Did you forget to generate them?')}\n${goldenTarget}\n\n`);
 					process.exit(1);
 				}
 			}
@@ -77,9 +77,9 @@ class VisualDiff {
 			} else {
 				await this._generateHtml(reportName, this._results);
 				if (_isCI) {
-					process.stdout.write(`\nResults: ${this._fs.getCurrentBaseUrl()}${reportName}\n`);
+					process.stdout.write(`\n${chalk.gray('Results:')} ${this._fs.getCurrentBaseUrl()}${reportName}\n`);
 				} else {
-					process.stdout.write(`\nResults: ${_baseUrl}${currentTarget}/${reportName}\n`);
+					process.stdout.write(`\n${chalk.gray('Results:')} ${_baseUrl}${currentTarget}/${reportName}\n`);
 				}
 			}
 		});
@@ -135,8 +135,7 @@ class VisualDiff {
 	}
 
 	async _deleteGoldenOrphans() {
-
-		process.stdout.write('\n      Removed orphaned goldens.\n');
+		let orphansExist = false;
 
 		const currentFiles = this._fs.getCurrentFiles();
 		const goldenFiles = await this._fs.getGoldenFiles();
@@ -144,13 +143,18 @@ class VisualDiff {
 		for (let i = 0; i < goldenFiles.length; i++) {
 			const fileName = goldenFiles[i];
 			if (!currentFiles.includes(fileName)) {
+				if (!orphansExist) {
+					process.stdout.write('\n      Removed orphaned goldens.\n');
+					orphansExist = true;
+				}
 				await this._fs.removeGoldenFile(fileName);
 				process.stdout.write(`      ${chalk.gray(fileName)}\n`);
 			}
 		}
 
-		process.stdout.write('\n');
-
+		if (orphansExist) {
+			process.stdout.write('\n');
+		}
 	}
 
 	async _generateHtml(fileName, results) {

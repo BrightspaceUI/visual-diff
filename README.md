@@ -119,7 +119,7 @@ Because of the difference in local and CI environments, you can't commit the gol
 
 ***Tips:***
 * specify a longer Mocha timeout (while a screenshot is worth a 1000 tests, each screenshot is slower compared to a typical  unit test)
-* use Mocha's grep option to run a subset locally (i.e. `npm run test:diff -- -g some-pattern`)
+* use Mocha's grep option to run a subset locally (i.e. `mocha './test/**/*.visual-diff.js' -t 10000 -- -g some-pattern`)
 
 ## Versioning & Releasing
 

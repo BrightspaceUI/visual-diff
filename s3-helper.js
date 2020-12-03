@@ -72,20 +72,20 @@ class S3Helper {
 
 		const fileStream = fs.createReadStream(filePath);
 
-		fileStream.on('error', function(err) {
+		fileStream.on('error', (err) => {
 			process.stdout.write(`\n${chalk.red(err)}`);
 			return Promise.reject(err);
 		});
 		params.Body = fileStream;
 		params.Key = path.basename(filePath);
 
-		s3.upload(params, function(err, data) {
+		return s3.upload(params, (err, data) => {
 			if (err) {
 				process.stdout.write(`\n${chalk.red(err)}`);
-				return Promise.reject(err);
+				Promise.reject(err);
 			}
 			if (data) {
-				return Promise.resolve(data);
+				Promise.resolve(data);
 			}
 		});
 

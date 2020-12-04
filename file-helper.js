@@ -4,8 +4,8 @@ const S3Helper = require('./s3-helper.js');
 
 class FileHelper {
 
-	constructor(name, rootDir, s3Config, isCI) {
-		this.s3 = new S3Helper(name, s3Config, isCI);
+	constructor(name, rootDir, isCI) {
+		this.s3 = new S3Helper(name);
 		this.isCI = isCI;
 
 		this.name = name;
@@ -43,7 +43,7 @@ class FileHelper {
 
 	getCurrentBaseUrl() {
 		if (!this.isCI) return null;
-		return this.s3.getCurrentObjectUrl('');
+		return this.s3.getCurrentBaseUrl();
 	}
 
 	getCurrentFiles() {
@@ -64,7 +64,7 @@ class FileHelper {
 	}
 
 	getCurrentTarget() {
-		return this.isCI ? this.s3.currentConfig.target : this.currentDir;
+		return this.isCI ? this.s3.target : this.currentDir;
 	}
 
 	getDiffImageBase64(name) {
@@ -96,15 +96,6 @@ class FileHelper {
 		return this.goldenDir;
 	}
 
-	getGoldenUrl(name) {
-		const ext = (name.endsWith('.png') || name.endsWith('.html')) ? '' : '.png';
-		name = `${this.formatName(name)}${ext}`;
-		if (!this.isCI) return `${this.goldenSubDir}/${name}`;
-		const rootDir = this.goldenDir.replace('/home/travis/build', 'https://raw.githubusercontent.com');
-		const rootDirBranch = rootDir.replace(process.env.TRAVIS_REPO_SLUG, `${process.env.TRAVIS_REPO_SLUG}/${process.env.TRAVIS_PULL_REQUEST_BRANCH}`);
-		return `${rootDirBranch}/${name}`;
-	}
-
 	getImage(path) {
 		return new Promise((resolve) => {
 			const data = fs.readFileSync(path);
@@ -125,7 +116,7 @@ class FileHelper {
 	}
 
 	getReportFileName() {
-		return this.isCI ? `${this.getTimestamp('-', '.')}-${process.env['TRAVIS_COMMIT']}-report.html` : 'report.html';
+		return this.isCI ? `${this.getTimestamp('-', '.')}-${process.env['GITHUB_SHA']}-report.html` : 'report.html';
 	}
 
 	getTimestamp(dateDelim, timeDelim) {

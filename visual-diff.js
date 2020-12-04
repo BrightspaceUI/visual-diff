@@ -4,14 +4,18 @@ const expect = require('chai').expect;
 const pixelmatch = require('pixelmatch');
 const PNG = require('pngjs').PNG;
 const FileHelper = require('./file-helper.js');
+const fs = require('fs');
 
-const _isGoldenUpdate = process.argv.includes('--golden') ? process.argv.includes('--golden') : false;
 const _isCI = process.env['CI'] ? true : false;
+const _isLocalTestRun = !_isCI && !process.argv.includes('--golden');
+const _isLocalGoldenUpdate = !_isCI && process.argv.includes('--golden');
 const _serverOptions = esDevServer.createConfig({ babel: true, nodeResolve: true, dedupe: true });
 
 let _baseUrl;
 let _server;
 let _goldenUpdateCount = 0;
+let _goldenErrorCount = 0;
+let _failedReportLinks;
 
 before(async() => {
 	const { server } = await esDevServer.startServer(_serverOptions);
@@ -22,12 +26,16 @@ before(async() => {
 });
 
 after(async() => {
+	if (_isCI && _failedReportLinks) {
+		fs.writeFileSync('failed-reports.txt', _failedReportLinks);
+	}
 	if (_server) {
 		await _server.close();
 		process.stdout.write('Stopped server.\n');
 	}
-	if (_isGoldenUpdate) {
-		process.stdout.write(chalk.green(`\n  ${chalk.green(_goldenUpdateCount)} goldens updated.\n`));
+	process.stdout.write(chalk.green(`\n  ${chalk.green(_goldenUpdateCount)} golden(s) updated.\n`));
+	if (_goldenErrorCount > 0) {
+		process.stdout.write(chalk.red(`  ${chalk.red(_goldenErrorCount)} golden updates failed.\n`));
 	}
 });
 
@@ -42,7 +50,8 @@ class VisualDiff {
 		this.resetFocus = require('./helpers/resetFocus');
 
 		this._results = [];
-		this._fs = new FileHelper(name, `${dir ? dir : process.cwd()}/screenshots`, options ? options.upload : null, _isCI);
+		this._hasTestFailures = false;
+		this._fs = new FileHelper(name, `${dir ? dir : process.cwd()}/screenshots`, _isCI);
 		this._dpr = options && options.dpr ? options.dpr : 2;
 		this._tolerance = options && options.tolerance ? options.tolerance : 0;
 
@@ -55,32 +64,55 @@ class VisualDiff {
 				currentTarget = currentTarget.replace(process.cwd(), '');
 				goldenTarget = goldenTarget.replace(process.cwd(), '');
 			} else {
-				goldenTarget = goldenTarget.replace('/home/travis/build/', '');
+				goldenTarget = goldenTarget.replace('/home/runner/work/', '');
 			}
 
-			process.stdout.write(`\n${chalk.hex('#DCDCAA')('    Golden:')} ${goldenTarget}\n\n`);
+			process.stdout.write(`\n${chalk.yellow('    Golden:')} ${goldenTarget}\n\n`);
 
-			if (!_isGoldenUpdate && !_isCI) {
+			if (_isLocalTestRun) {
 				// fail fast if no goldens
 				const goldenFiles = await this._fs.getGoldenFiles();
 				if (goldenFiles.length === 0) {
-					process.stdout.write(`\n${chalk.hex('#DCDCAA')('No goldens!  Did you forget to generate them?')}\n${goldenTarget}\n\n`);
+					process.stdout.write(`\n${chalk.red('No goldens!  Did you forget to generate them?')}\n${goldenTarget}\n\n`);
 					process.exit(1);
 				}
 			}
 		});
 
+		beforeEach(() => {
+			this._updateGolden = false;
+			this._updateError = false;
+		});
+
+		afterEach(() => {
+			if (this._updateError) {
+				process.stdout.write(chalk.bold.red(`      [Attention: ${chalk.yellow('Golden')} update failed!]\n`));
+			} else if (this._updateGolden && _isLocalGoldenUpdate) {
+				process.stdout.write(chalk.green('      [Golden updated successfully.]\n'));
+			} else if (_isLocalGoldenUpdate) {
+				process.stdout.write(chalk.grey('      [Golden already up to date.]\n'));
+			}
+		});
+
 		after(async() => {
 			const reportName = this._fs.getReportFileName();
-			if (_isGoldenUpdate) {
+
+			if (!_isLocalTestRun) {
 				await this._deleteGoldenOrphans();
-			} else {
+			}
+
+			try {
 				await this._generateHtml(reportName, this._results);
 				if (_isCI) {
-					process.stdout.write(`\nResults: ${this._fs.getCurrentBaseUrl()}${reportName}\n`);
+					process.stdout.write(`\n${chalk.gray('Results:')} ${this._fs.getCurrentBaseUrl()}${reportName}\n`);
+					if (this._hasTestFailures) {
+						_failedReportLinks = _failedReportLinks ? _failedReportLinks + `,${this._fs.getCurrentBaseUrl()}${reportName}` : `${this._fs.getCurrentBaseUrl()}${reportName}`;
+					}
 				} else {
-					process.stdout.write(`\nResults: ${_baseUrl}${currentTarget}/${reportName}\n`);
+					process.stdout.write(`\n${chalk.gray('Results:')} ${_baseUrl}${currentTarget}/${reportName}\n`);
 				}
+			} catch (error) {
+				process.stdout.write(`\n${chalk.red(`Could not generate report: ${error}`)}`);
 			}
 		});
 
@@ -95,8 +127,7 @@ class VisualDiff {
 
 		await page.screenshot(info);
 
-		if (_isGoldenUpdate) return this._updateGolden(name);
-		else await this._compare(name);
+		await this._compare(name);
 	}
 
 	async _compare(name) {
@@ -115,8 +146,22 @@ class VisualDiff {
 				currentImage.data, goldenImage.data, diff.data, currentImage.width, currentImage.height, { threshold: this._tolerance }
 			);
 			if (pixelsDiff !== 0) {
+				this._updateGolden = true;
 				await this._fs.writeCurrentStream(`${name}-diff`, diff.pack());
 				diffImageBase64 = await this._fs.getDiffImageBase64(`${name}-diff`);
+			}
+		} else {
+			this._updateGolden = true;
+		}
+
+		if (this._updateGolden && !_isLocalTestRun) {
+			this._hasTestFailures = true;
+			const result = await this._fs.updateGolden(name);
+			if (result) {
+				_goldenUpdateCount++;
+			} else {
+				this._updateError = true;
+				_goldenErrorCount++;
 			}
 		}
 
@@ -127,16 +172,16 @@ class VisualDiff {
 			diff: { pixelsDiff: pixelsDiff, base64Image: (pixelsDiff > 0 ? diffImageBase64 : null) },
 		});
 
-		expect(goldenImage !== null, 'golden exists').equal(true);
-		expect(currentImage.width, 'image widths are the same').equal(goldenImage.width);
-		expect(currentImage.height, 'image heights are the same').equal(goldenImage.height);
-		expect(pixelsDiff, 'number of different pixels').equal(0);
-
+		if (!_isLocalGoldenUpdate) {
+			expect(goldenImage !== null, 'golden exists').equal(true);
+			expect(currentImage.width, 'image widths are the same').equal(goldenImage.width);
+			expect(currentImage.height, 'image heights are the same').equal(goldenImage.height);
+			expect(pixelsDiff, 'number of different pixels').equal(0);
+		}
 	}
 
 	async _deleteGoldenOrphans() {
-
-		process.stdout.write('\n      Removed orphaned goldens.\n');
+		let orphansExist = false;
 
 		const currentFiles = this._fs.getCurrentFiles();
 		const goldenFiles = await this._fs.getGoldenFiles();
@@ -144,13 +189,18 @@ class VisualDiff {
 		for (let i = 0; i < goldenFiles.length; i++) {
 			const fileName = goldenFiles[i];
 			if (!currentFiles.includes(fileName)) {
+				if (!orphansExist) {
+					process.stdout.write('\n      Removed orphaned goldens.\n');
+					orphansExist = true;
+				}
 				await this._fs.removeGoldenFile(fileName);
 				process.stdout.write(`      ${chalk.gray(fileName)}\n`);
 			}
 		}
 
-		process.stdout.write('\n');
-
+		if (orphansExist) {
+			process.stdout.write('\n');
+		}
 	}
 
 	async _generateHtml(fileName, results) {
@@ -177,27 +227,33 @@ class VisualDiff {
 			if (image) return createImageHtml('Golden', image);
 			else return createNoImageHtml('Golden', defaultImage, 'No golden.');
 		};
-		const createDiffHtml = (diff, defaultImage) => {
+		const createDiffHtml = (diff, defaultImage, goldenImage) => {
 			if (diff.pixelsDiff === 0) {
 				return createNoImageHtml('Difference (0px)', defaultImage, 'Images match.');
 			} else if (diff.pixelsDiff > 0) {
 				return createArtifactHtml('Difference', `${diff.pixelsDiff / this._dpr}px`, `<img src="data:image/png;base64,${diff.base64Image}" style="width: ${defaultImage.width / this._dpr}px; height: ${defaultImage.height / this._dpr}px;" alt="Difference" />`);
+			} else if (goldenImage) {
+				return createNoImageHtml('Difference', defaultImage, 'Images are not the same size.');
 			} else {
 				return createNoImageHtml('Difference', defaultImage, 'No image.');
 			}
 		};
 		const createMetaHtml = () => {
 			if (!_isCI) return '';
-			const branch = process.env['TRAVIS_BRANCH'];
-			const sha = process.env['TRAVIS_COMMIT'];
-			const message = process.env['TRAVIS_COMMIT_MESSAGE'];
-			const url = process.env['TRAVIS_BUILD_WEB_URL'];
-			const build = process.env['TRAVIS_BUILD_NUMBER'];
+			const runUrl = `${process.env['GITHUB_SERVER_URL']}/${process.env['GITHUB_REPOSITORY']}/actions/runs/${process.env['GITHUB_RUN_ID']}`;
+			const workflow = process.env['GITHUB_WORKFLOW'];
+			const runNum = process.env['GITHUB_RUN_NUMBER'];
+			const pr = /refs\/pull\/(\d+)\/merge/g.exec(process.env['GITHUB_REF']);
+			const prNum = pr && pr[1] ? pr[1] : null;
+			const prUrl = `${process.env['GITHUB_SERVER_URL']}/${process.env['GITHUB_REPOSITORY']}/pull/${prNum}`;
+			const branch = process.env['GITHUB_REF'];
+			const sha = process.env['GITHUB_SHA'];
+			const actor = process.env['GITHUB_ACTOR'];
 			return `
 				<div class="meta">
-					<div><a href="${url}">Build #${build}</a></div>
-					<div>${branch} (${sha})</div>
-					<div>${message}</div>
+					<div><a href="${runUrl}">${workflow} Run #${runNum}</a></div>
+					${ prNum ? `<div><a href="${prUrl}">PR: #${prNum}</a></div>` : `<div>Commit to ${branch}: ${sha}</div>`}
+					<div>By ${actor}</div>
 				</div>`;
 		};
 		const diffHtml = results.map((result) => {
@@ -207,7 +263,7 @@ class VisualDiff {
 				<div class="compare">
 					${createCurrentHtml(result.current)}
 					${createGoldenHtml(result.golden, result.current)}
-					${createDiffHtml(result.diff, result.current)}
+					${createDiffHtml(result.diff, result.current, result.golden)}
 				</div>`;
 		}).join('\n');
 
@@ -238,36 +294,6 @@ class VisualDiff {
 		`;
 
 		await this._fs.writeFile(fileName, html);
-	}
-
-	async _updateGolden(name) {
-
-		const currentImage = await this._fs.getCurrentImage(name);
-		const goldenImage = await this._fs.getGoldenImage(name);
-
-		let updateGolden = false;
-		if (!goldenImage) {
-			updateGolden = true;
-		} else if (currentImage.width !== goldenImage.width || currentImage.height !== goldenImage.height) {
-			updateGolden = true;
-		} else {
-			const diff = new PNG({ width: currentImage.width, height: currentImage.height });
-			const pixelsDiff = pixelmatch(
-				currentImage.data, goldenImage.data, diff.data, currentImage.width, currentImage.height, { threshold: this._tolerance }
-			);
-			if (pixelsDiff !== 0) updateGolden = true;
-		}
-
-		process.stdout.write('      ');
-		if (updateGolden) {
-			const result = await this._fs.updateGolden(name);
-			if (result) process.stdout.write(chalk.gray('golden updated'));
-			else process.stdout.write(chalk.gray('golden update failed'));
-			_goldenUpdateCount++;
-		} else {
-			process.stdout.write(chalk.gray('golden already up to date'));
-		}
-
 	}
 
 }

@@ -9,13 +9,7 @@
   "main": "visual-diff.js",
   "scripts": {
     "lint": "eslint . --ext .js,.html",
-    "test": "npm run lint",
-    "test:diff": "mocha './test/**/*.visual-diff.js' -t 10000",
-    "test:diff:golden": "mocha './test/**/*.visual-diff.js' -t 10000 --golden",
-    "test:diff:golden:commit": "node ./bin/commit-goldens.js"
-  },
-  "bin": {
-    "commit-goldens": "bin/commit-goldens.js"
+    "test": "npm run lint"
   },
   "files": [
     "/helpers",
@@ -44,7 +38,6 @@
     "chai": "^4",
     "chalk": "^4",
     "es-dev-server": "^1",
-    "pixelmatch": "^5",
-    "simple-git": "^2"
+    "pixelmatch": "^5"
   }
 }

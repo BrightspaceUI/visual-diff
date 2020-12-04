@@ -61,7 +61,6 @@ class S3Helper {
 		}
 
 		const s3 = new AWS.S3(_s3Config);
-
 		const params = {
 			Body: '',
 			Bucket: this.target,
@@ -70,25 +69,26 @@ class S3Helper {
 			Key: ''
 		};
 
-		const fileStream = fs.createReadStream(filePath);
+		return new Promise((resolve, reject) => {
+			const fileStream = fs.createReadStream(filePath);
 
-		fileStream.on('error', (err) => {
-			process.stdout.write(`\n${chalk.red(err)}`);
-			return Promise.reject(err);
-		});
-		params.Body = fileStream;
-		params.Key = path.basename(filePath);
-
-		return s3.upload(params, (err, data) => {
-			if (err) {
+			fileStream.on('error', (err) => {
 				process.stdout.write(`\n${chalk.red(err)}`);
-				Promise.reject(err);
-			}
-			if (data) {
-				Promise.resolve(data);
-			}
-		});
+				reject(err);
+			});
+			params.Body = fileStream;
+			params.Key = path.basename(filePath);
 
+			s3.upload(params, (err, data) => {
+				if (err) {
+					process.stdout.write(`\n${chalk.red(err)}`);
+					reject(err);
+				}
+				if (data) {
+					resolve(data);
+				}
+			});
+		});
 	}
 
 }

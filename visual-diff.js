@@ -45,10 +45,10 @@ class VisualDiff {
 	constructor(name, dir, options) {
 
 		if (_testNames.includes(name)) {
-            process.stdout.write(chalk.red(`\nDuplicate name key: ${name}.  VisualDiff configuration requires a unique name.\n`));
-            process.exit(1);
-        }
-        _testNames.push(name);
+			process.stdout.write(chalk.red(`\nDuplicate name key: ${name}.  VisualDiff configuration requires a unique name.\n`));
+			process.exit(1);
+		}
+		_testNames.push(name);
 
 		this.createPage = require('./helpers/createPage');
 		this.disableAnimations = require('./helpers/disableAnimations');

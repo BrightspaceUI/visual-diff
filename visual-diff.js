@@ -16,6 +16,7 @@ let _server;
 let _goldenUpdateCount = 0;
 let _goldenErrorCount = 0;
 let _failedReportLinks;
+const _testNames = [];
 
 before(async() => {
 	const { server } = await esDevServer.startServer(_serverOptions);
@@ -42,6 +43,12 @@ after(async() => {
 class VisualDiff {
 
 	constructor(name, dir, options) {
+
+		if (_testNames.includes(name)) {
+            process.stdout.write(chalk.red(`\nDuplicate name key: ${name}.  VisualDiff configuration requires a unique name.\n`));
+            process.exit(1);
+        }
+        _testNames.push(name);
 
 		this.createPage = require('./helpers/createPage');
 		this.disableAnimations = require('./helpers/disableAnimations');

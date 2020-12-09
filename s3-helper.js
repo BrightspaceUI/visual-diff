@@ -3,16 +3,25 @@ const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
 
-const repo = process.env['GITHUB_REPOSITORY'];
+const [owner, repo] = process.env['GITHUB_REPOSITORY'].split('/');
 let _s3Config;
 
 async function getS3Creds() {
 	return new Promise((resolve, reject) => {
 		const timestamp = (new Date()).getTime();
-		const formattedRepo = repo.replace(/\//g, '-');
 		const params = {
 			RoleArn: 'arn:aws:iam::037018655140:role/visual-diff-githubactions-access',
-			RoleSessionName: `${formattedRepo}-visual-diff-${timestamp}`
+			RoleSessionName: `visual-diff-${timestamp}`,
+			Tags: [
+				{
+					Key: 'Org',
+					Value: owner
+				},
+				{
+					Key: 'Repo',
+					Value: repo
+				}
+			]
 		};
 
 		const sts = new AWS.STS();

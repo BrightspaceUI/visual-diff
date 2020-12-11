@@ -10,7 +10,7 @@ A visual difference utility using Mocha, Chai, Puppeteer, and PixelMatch.
 
 ## Installation
 
-This package is designed to be used alongside the [visual-diff github action](https://github.com/BrightspaceUI/actions/tree/master/visual-diff).  That action will handle installing so you don't need to include `visual-diff` and `puppeteer` in your repo's `devDependencies`.
+This package is designed to be used alongside the [visual-diff GitHub action](https://github.com/BrightspaceUI/actions/tree/master/visual-diff).  That action will handle installing so you don't need to include `visual-diff` and `puppeteer` in your repo's `devDependencies`.
 
 If you want to install locally for test creation and troubleshooting, run:
 ```shell
@@ -22,43 +22,40 @@ npm i @brightspace-ui/visual-diff puppeteer --no-save
 
 **Note:** Both the `.html` and the `.js` file need to end with the `.visual-diff` suffix for the tests to run correctly.
 
-### Create Test Fixture
+### Create Visual-Diff Tests
 
-Create an `.html` file containing the element to be tested. Below is an example `.html` file with the component to be tested.
+#### Standard Setup
 
-***Tips:***
-* provide some whitespace around the element so screenshots do not clip other fixtures on the page if larger clip dimensions are used for the screenshot.
+Create a `.visual-diff.html` file containing the element to be tested.
 
 ```html
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>d2l-button-icon</title>
-    <script src=".../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-    <script type="module">
-      import '.../button-icon.js';
-    </script>
-  </head>
-  <body>
-    <d2l-button-icon id="normal" icon="d2l-tier1:gear" text="Icon Button"></d2l-button-icon>
-  </body>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>d2l-button-icon</title>
+  <script type="module">
+    import '@brightspace-ui/core/components/typography/typography.js';
+    import '.../button-icon.js';
+  </script>
+  <style>
+    html { font-size: 20px; }
+    body { padding: 30px; }
+    .visual-diff { margin-bottom: 30px; }
+  </style>
+</head>
+<body class="d2l-typography">
+
+  <div class="visual-diff">
+    <d2l-button-icon id="simple" icon="d2l-tier1:gear" text="Icon Button"></d2l-button-icon>
+  </div>
+
+</body>
 </html>
 ```
 
-### Create Visual-Diff Tests
-
-Create the visual-diff tests. Provide a ***unique*** name and the location where screenshots are saved. Use the `VisualDiff` context to navigate, take screenshots, and compare.  Below is an example of the visual-diff test for the above component.
-
-***Tips:***
-* use the `createPage(browser)` helper to create a page with the reduced motion preference, default viewport dimensions (800x800), and device scaling factor.
-* use `deviceScaleFactor` to account for `dpr` (device-pixel-ratio), especially on retina display
-* run diffs with a different view-port size for media queries; avoid duplicating
-* bring page to front when testing focus (i.e. activate the browser tab)
-* reset focus between tests if not reloading the page
-* name screenshots using `this.test.fullTitle()`
-* use the standard Puppeteer API for all its greatness
-* use the `prefers-reduced-motion: reduce` media query in your component, or wait for animations to complete before taking screenshots
-
+Create a `.visual-diff.js` file containing the tests, using a ***unique*** name for the set.
 
 ```js
 const puppeteer = require('puppeteer');
@@ -80,16 +77,185 @@ describe('d2l-button-icon', function() {
     await page.bringToFront();
   });
 
-  after(() => browser.close());
+  beforeEach(async() => await visualDiff.resetFocus(page));
+
+  after(async() => await browser.close());
+
+  it('normal', async function() {
+    const rect = await visualDiff.getRect(page, '#simple');
+    await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
+  });
 
   it('focus', async function() {
-    await focus(page, '#normal');
-    const rect = await visualDiff.getRect(page, '#normal');
+    await focus(page, '#simple');
+    const rect = await visualDiff.getRect(page, '#simple');
     await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
   });
 
 });
 ```
+
+***Tips:***
+* include `typography.js` to load our fonts, etc.
+* provide some whitespace around the fixture so screenshots do not include other fixtures on the page when larger clip dimensions are used
+* use the `createPage(browser)` helper to create a page with the reduced motion preference, default view-port dimensions (800x800), and device scaling factor (device pixel ratio).
+* bring page to front when testing focus (i.e. activate the browser tab)
+* only make screenshots as big as they need to be since larger screenshots are slower to compare
+* reset focus between tests if not reloading the page
+* name screenshots using `this.test.fullTitle()`
+* use the standard Puppeteer API for all its greatness
+
+#### Asynchronous Behaviors
+
+Components may also have asynchronous behaviors (loading data, animations, etc.) triggered by user-interaction which requires the tests to wait before taking screenshots. This is typically handled by waiting for some event using one of a couple approaches. The first uses our `oneEvent` helper.
+
+```js
+const { oneEvent } = require('@brightspace-ui/visual-diff/helpers');
+
+it('some-test', async function() {
+
+  const someEvent = oneEvent(page, '#simple', 'd2l-some-event');
+  page.$eval('#simple', elem => elem.someAsyncAction());
+  await someEvent;
+
+  const rect = await visualDiff.getRect(page, '#simple');
+  await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
+
+});
+```
+
+The second approach wires up an event handler directly to the element dispatching the event, however this is less desirable since it requires the test having knowledge of the component's internal DOM structure.
+
+```js
+it('some-test', async function() {
+
+  await page.$eval('#simple', elem => {
+    return new Promise(resolve => {
+
+      elem.shadowRoot.querySelector('...')
+        .addEventListener('d2l-some-event', resolve, { once: true } );
+
+      elem.someAsyncAction();
+
+    })
+  });
+
+
+  const rect = await visualDiff.getRect(page, '#simple');
+  await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
+
+});
+```
+
+***Tips:***
+* use the `oneEvent` visual-diff helper to wait for events
+* not all events bubble, and not all events are composed, so in some cases it's necessary to wire-up directly to the element dispatching the event
+* animation and transition event handlers may be called more than once if multiple properties are being animated. For animations, it is best if the component supports `prefers-reduced-motion: reduce`. See Animations below.
+
+#### Responsive
+
+Use Puppeteer's `setViewport` API to perform visual-diff tests with different view dimensions.
+
+```js
+[
+  { category: 'wide', viewport: { width: 800, height: 500 } },
+  { category: 'narrow', viewport: { width: 600, height: 500 } }
+].forEach(info => {
+
+  describe(info.category, () => {
+
+    before(async() => {
+      await page.setViewport({
+        height: info.viewport.height, width: info.viewport.width,
+        deviceScaleFactor: 2
+      });
+    });
+
+    it('some-test', async function() {
+      ...
+    });
+
+  });
+
+});
+```
+
+***Tips:***
+* run diffs with a different view-port size for components containing media queries
+* avoid duplicating tests unnecessarily (i.e. don't need to duplicate every test at every breakpoint)
+* always use `deviceScaleFactor: 2`
+
+#### RTL
+
+There are two approaches for setting up visual-diff tests in RTL. The first approach leverages the fact that our [RtlMixin](https://github.com/BrightspaceUI/core/blob/master/mixins/rtl-mixin.md) will honor `dir="rtl"` on elements.
+
+```html
+<div class="visual-diff">
+  <d2l-button-icon dir="rtl" ...></d2l-button-icon>
+</div>
+```
+
+The second approach involves navigating the page using Puppeteer's `goto` API, passing a query-string parameter that is used to apply `dir="rtl"` to the document. It requires more setup, but is useful in scenarios where the many fixtures contain many elements that would all otherwise require `dir="rtl"`.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  ...
+  <script>
+    const rtl = (window.location.search.indexOf('dir=rtl') !== -1);
+    if (rtl) document.documentElement.setAttribute('dir', 'rtl');
+  </script>
+  ...
+</head>
+<body class="d2l-typography">
+  ...
+</body>
+</html>
+```
+
+```js
+['ltr', 'rtl'].forEach(dir => {
+
+  describe(dir, () => {
+
+    before(async() => {
+      await page.goto(
+        `${visualDiff.getBaseUrl()}/.../button-icon.visual-diff.html?dir=${dir}`,
+        {waitUntil: ['networkidle0', 'load']}
+      );
+      await page.bringToFront();
+    });
+
+    it('some-test', async function() {
+      ...
+    });
+
+  });
+
+});
+```
+
+***Tips:***
+* avoid duplicating tests unnecessarily (i.e. don't need to perform every test in both LTR and RTL)
+
+#### Animations
+
+Animations (CSS key-frame animations or transitions) in components can lead to flakey inconsistent screenshots. To avoid inconsistent results, it is best to use the `createPage` visual-diff helper that emulates the `prefers-reduced-motion` user preference. However, this approach depends on components honoring the preference with media-queries (which all of our `core` components do with the exception of `d2l-loading-spinner`).
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    animation: none; /* or... */
+    transition: none;
+  }
+}
+```
+
+Alternatively, visual-diff tests can wait for `transitionend` and `animationend` events.  However, this is not recommended becuase:
+* these events are not composed and requires tests having knowledge of component internals
+* these events may be dispatched more than once when multiple properties are animated
+* waiting for animations makes the tests run slower
 
 ## Running Tests
 

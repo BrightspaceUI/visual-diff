@@ -195,7 +195,7 @@ There are two approaches for setting up visual-diff tests in RTL. The first appr
 </div>
 ```
 
-The second approach involves navigating the page using Puppeteer's `goto` API, passing a query-string parameter that is used to apply `dir="rtl"` to the document. It requires more setup, but is useful in scenarios where the many fixtures contain many elements that would all otherwise require `dir="rtl"`.
+The second approach involves navigating the page using Puppeteer's `goto` API, passing a query-string parameter that is used to apply `dir="rtl"` to the document. It requires more setup, but is useful in scenarios where many fixtures contain many elements that would all otherwise require `dir="rtl"`.
 
 ```html
 <!DOCTYPE html>

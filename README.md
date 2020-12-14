@@ -103,7 +103,7 @@ describe('d2l-button-icon', function() {
 * only make screenshots as big as they need to be since larger screenshots are slower to compare
 * reset focus between tests if not reloading the page
 * name screenshots using `this.test.fullTitle()`
-* use the standard Puppeteer API for all its greatness
+* use the [standard Puppeteer API](https://pptr.dev/) for all its greatness
 
 #### Asynchronous Behaviors
 

@@ -185,7 +185,7 @@ Use Puppeteer's `setViewport` API to perform visual-diff tests with different vi
 * avoid duplicating tests unnecessarily (i.e. don't need to duplicate every test at every breakpoint)
 * always use `deviceScaleFactor: 2`
 
-#### RTL
+#### Right-to-Left (RTL)
 
 There are two approaches for setting up visual-diff tests in RTL. The first approach leverages the fact that our [RtlMixin](https://github.com/BrightspaceUI/core/blob/master/mixins/rtl-mixin.md) will honor `dir="rtl"` on elements.
 

@@ -107,7 +107,7 @@ describe('d2l-button-icon', function() {
 
 #### Asynchronous Behaviors
 
-Components may also have asynchronous behaviors (loading data, animations, etc.) triggered by user-interaction which requires the tests to wait before taking screenshots. This is typically handled by waiting for some event using one of a couple approaches. The first uses our `oneEvent` helper.
+Components may also have asynchronous behaviors (loading data, animations, etc.) triggered by user-interaction which require the tests to wait before taking screenshots. This is typically handled by waiting for some event using one of a couple approaches. The first uses our `oneEvent` helper:
 
 ```js
 const { oneEvent } = require('@brightspace-ui/visual-diff/helpers');

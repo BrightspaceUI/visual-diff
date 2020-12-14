@@ -26,7 +26,7 @@ npm i @brightspace-ui/visual-diff puppeteer --no-save
 
 #### Standard Setup
 
-Create a `.visual-diff.html` file containing the element to be tested.
+Create a `<my-element>.visual-diff.html` file containing the element to be tested.
 
 ```html
 <!DOCTYPE html>

@@ -55,7 +55,7 @@ Create a `<my-element>.visual-diff.html` file containing the element to be teste
 </html>
 ```
 
-Create a `.visual-diff.js` file containing the tests, using a ***unique*** name for the set.
+Create a `<my-element>.visual-diff.js` file containing the tests, using a ***unique*** name for the set.
 
 ```js
 const puppeteer = require('puppeteer');

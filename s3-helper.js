@@ -3,12 +3,12 @@ const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
 
-const [owner, repo] = process.env['GITHUB_REPOSITORY'].split('/');
 let _s3Config;
 
 async function getS3Creds() {
 	return new Promise((resolve, reject) => {
 		const timestamp = (new Date()).getTime();
+		const [owner, repo] = process.env['GITHUB_REPOSITORY'].split('/');
 		const params = {
 			RoleArn: 'arn:aws:iam::037018655140:role/visual-diff-githubactions-access',
 			RoleSessionName: `visual-diff-${timestamp}`,
@@ -44,11 +44,17 @@ async function getS3Creds() {
 class S3Helper {
 
 	constructor(name) {
-		this.target = `visual-diff.d2l.dev/screenshots/${repo}/${name}`;
+		this.name = name;
 	}
 
 	getCurrentBaseUrl() {
-		return `https://${this.target}/`;
+		return `https://${this.getTarget()}/`;
+	}
+
+	getTarget() {
+		const [, repo] = process.env['GITHUB_REPOSITORY'].split('/');
+		const target = `visual-diff.d2l.dev/screenshots/${repo}/${this.name}`;
+		return target;
 	}
 
 	async uploadFile(filePath) {
@@ -72,7 +78,7 @@ class S3Helper {
 		const s3 = new AWS.S3(_s3Config);
 		const params = {
 			Body: '',
-			Bucket: this.target,
+			Bucket: this.getTarget(),
 			ContentDisposition: 'inline',
 			ContentType: getContentType(filePath),
 			Key: ''

@@ -52,8 +52,8 @@ class S3Helper {
 	}
 
 	getTarget() {
-		const [, repo] = process.env['GITHUB_REPOSITORY'].split('/');
-		const target = `visual-diff.d2l.dev/screenshots/${repo}/${this.name}`;
+		const fullRepo = process.env['GITHUB_REPOSITORY'];
+		const target = `visual-diff.d2l.dev/screenshots/${fullRepo}/${this.name}`;
 		return target;
 	}
 

@@ -20,7 +20,7 @@
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "devDependencies": {
-    "babel-eslint": "^10",
+    "@babel/eslint-parser": "^7",
     "eslint": "^7",
     "eslint-config-brightspace": "^0.13",
     "eslint-plugin-html": "^6",

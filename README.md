@@ -9,7 +9,7 @@ A visual difference utility using Mocha, Chai, Puppeteer, and PixelMatch.
 ![screenshot of generated difference report](/screenshots/sample-report.png?raw=true)
 
 ## Installation
-
+Testing
 This package is designed to be used alongside the [visual-diff GitHub action](https://github.com/BrightspaceUI/actions/tree/master/visual-diff).  That action will handle installing so you don't need to include `visual-diff` and `puppeteer` in your repo's `devDependencies`.
 
 If you want to install locally for test creation and troubleshooting, run:

@@ -17,6 +17,10 @@ If you want to install locally for test creation and troubleshooting, run:
 npm i mocha -g
 npm i @brightspace-ui/visual-diff puppeteer --no-save
 ```
+If your visual diff tests are written as ES Modules, you'll need to install `esm` as well (everything must be installed all at once):
+```shell
+npm i @brightspace-ui/visual-diff puppeteer esm --no-save
+```
 
 ## Writing Tests
 
@@ -281,6 +285,11 @@ Because of the difference in local and CI environments, you can't commit the gol
 ```
 <path_to_test>/test/screenshots/current/
 <path_to_test>/test/screenshots/golden/
+```
+
+If your visual diff tests are written as ES Modules, you'll need to include `--require esm` in your `mocha` call:
+```shell
+mocha './test/**/*.visual-diff.js' -t 10000 --require esm
 ```
 
 ***Tips:***

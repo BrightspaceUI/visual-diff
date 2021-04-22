@@ -266,7 +266,7 @@ class VisualDiff {
 		const diffHtml = results.map((result) => {
 
 			return `
-				<div${result.diff.pixelsDiff === 0 ? ' success' : ''}>
+				<div${result.diff.pixelsDiff === 0 ? ' class="success"' : ''}>
 					<h2>${result.name}</h2>
 					<div class="compare">
 						${createCurrentHtml(result.current)}
@@ -295,7 +295,7 @@ class VisualDiff {
 						.label { display: flex; font-size: 0.7rem; margin-bottom: 6px; }
 						.meta { font-size: 0.7rem; margin-top: 24px; }
 						.meta > div { margin-bottom: 3px; }
-						[hide-success] [success] { display: none; }
+						.hide-success .success { display: none; }
 					</style>
 				</head>
 				<body>
@@ -306,9 +306,9 @@ class VisualDiff {
 					${createMetaHtml()}
 				</body>
 				<script>
-					const checkbox = document.querySelector('input[type="checkbox"]');
+					const checkbox = document.getElementById('hideSuccesses');
 					checkbox.addEventListener('change', function() {
-						document.body.toggleAttribute('hide-success');
+						document.body.classList.toggle('hide-success', checkbox.checked);
 					});
 				</script>
 			</html>

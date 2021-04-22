@@ -266,11 +266,13 @@ class VisualDiff {
 		const diffHtml = results.map((result) => {
 
 			return `
-				<h2>${result.name}</h2>
-				<div class="compare">
-					${createCurrentHtml(result.current)}
-					${createGoldenHtml(result.golden, result.current)}
-					${createDiffHtml(result.diff, result.current, result.golden)}
+				<div${result.diff.pixelsDiff === 0 ? ' success' : ''}>
+					<h2>${result.name}</h2>
+					<div class="compare">
+						${createCurrentHtml(result.current)}
+						${createGoldenHtml(result.golden, result.current)}
+						${createDiffHtml(result.diff, result.current, result.golden)}
+					</div>
 				</div>`;
 		}).join('\n');
 
@@ -284,6 +286,8 @@ class VisualDiff {
 						h1 { font-size: 1.2rem; font-weight: 400; margin: 24px 0; }
 						h2 { font-size: 0.9rem; font-weight: 400; margin: 30px 0 18px 0; }
 						a { color: #006fbf; }
+						input { transform: scale(1.5); }
+						label { font-size: 0.9rem; }
 						.compare { display: flex; }
 						.compare > div { margin: 0 18px; }
 						.compare > div:first-child { margin: 0 18px 0 0; }
@@ -291,12 +295,22 @@ class VisualDiff {
 						.label { display: flex; font-size: 0.7rem; margin-bottom: 6px; }
 						.meta { font-size: 0.7rem; margin-top: 24px; }
 						.meta > div { margin-bottom: 3px; }
+						[hide-success] [success] { display: none; }
 					</style>
 				</head>
 				<body>
-					<h1>Visual-Diff</h1>${diffHtml}
+					<h1>Visual-Diff</h1>
+					<input id="hideSuccesses" type="checkbox"></input>
+					<label for="hideSuccesses">Show Only Failed Tests</label>
+					${diffHtml}
 					${createMetaHtml()}
 				</body>
+				<script>
+					const checkbox = document.querySelector('input[type="checkbox"]');
+					checkbox.addEventListener('change', function() {
+						document.body.toggleAttribute('hide-success');
+					});
+				</script>
 			</html>
 		`;
 

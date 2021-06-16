@@ -18,6 +18,8 @@ jobs:
           persist-credentials: false
       - name: Setup Node
         uses: Brightspace/third-party-actions@actions/setup-node
+        with:
+          node-version: '14'
       - name: Semantic Release
         uses: BrightspaceUI/actions/semantic-release@master
         with:

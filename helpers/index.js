@@ -1,6 +1,6 @@
 module.exports = {
-	createPage: require('./createPage'),
-	getRect: require('./getRect'),
-	oneEvent: require('./oneEvent'),
-	resetFocus: require('./resetFocus')
+	createPage: require('./createPage.js'),
+	getRect: require('./getRect.js'),
+	oneEvent: require('./oneEvent.js'),
+	resetFocus: require('./resetFocus.js')
 };

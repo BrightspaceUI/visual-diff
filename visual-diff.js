@@ -50,11 +50,11 @@ class VisualDiff {
 		}
 		_testNames.push(name);
 
-		this.createPage = require('./helpers/createPage');
-		this.disableAnimations = require('./helpers/disableAnimations');
-		this.getRect = require('./helpers/getRect');
-		this.oneEvent = require('./helpers/oneEvent');
-		this.resetFocus = require('./helpers/resetFocus');
+		this.createPage = require('./helpers/createPage.js');
+		this.disableAnimations = require('./helpers/disableAnimations.js');
+		this.getRect = require('./helpers/getRect.js');
+		this.oneEvent = require('./helpers/oneEvent.js');
+		this.resetFocus = require('./helpers/resetFocus.js');
 
 		this._results = [];
 		this._hasTestFailures = false;

@@ -293,9 +293,9 @@ class VisualDiff {
 						.compare > div { margin: 0 18px; }
 						.compare > div:first-child { margin: 0 18px 0 0; }
 						.compare > div:last-child { margin: 0 0 0 18px; }
-						.compare > div:last-child div:first-child:before { color: #cd2026; content: '✖'; margin-right: 0.4rem; }
-						.success .compare > div:last-child div:first-child:before { color: #8ad934; content: '✔'; }
-						.warning .compare > div:last-child div:first-child:before { color: #ffba59; content: '‼'; }
+						.compare > div:last-child div:first-child:before { color: #cd2026; content: '\\2716'; margin-right: 0.4rem; }
+						.success .compare > div:last-child div:first-child:before { color: #8ad934; content: '\\2714'; }
+						.warning .compare > div:last-child div:first-child:before { color: #ffba59; content: '\\203C'; }
 						.label { align-items: center; display: flex; font-size: 0.7rem; margin-bottom: 6px; }
 						.meta { font-size: 0.7rem; margin-top: 24px; }
 						.meta > div { margin-bottom: 3px; }

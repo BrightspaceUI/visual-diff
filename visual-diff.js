@@ -129,15 +129,15 @@ class VisualDiff {
 		return _baseUrl;
 	}
 
-	async screenshotAndCompare(page, name, options) {
-		const info = Object.assign({ path: this._fs.getCurrentPath(name) }, options);
+	async screenshotAndCompare(page, name, screenshotOptions, compareOptions) {
+		const info = Object.assign({ path: this._fs.getCurrentPath(name) }, screenshotOptions);
 
 		await page.screenshot(info);
 
-		await this._compare(name);
+		await this._compare(name, compareOptions);
 	}
 
-	async _compare(name) {
+	async _compare(name, options) {
 
 		const currentImage = await this._fs.getCurrentImage(name);
 		const goldenImage = await this._fs.getGoldenImage(name);
@@ -145,6 +145,7 @@ class VisualDiff {
 		const currentImageBase64 = await this._fs.getCurrentImageBase64(name);
 		const goldenImageBase64 = await this._fs.getGoldenImageBase64(name);
 
+		const allowedPixels = options && options.allowedPixels ? options.allowedPixels : 0;
 		let pixelsDiff, diffImageBase64;
 
 		if (goldenImage && currentImage.width === goldenImage.width && currentImage.height === goldenImage.height) {
@@ -153,10 +154,10 @@ class VisualDiff {
 				currentImage.data, goldenImage.data, diff.data, currentImage.width, currentImage.height, { threshold: this._tolerance }
 			);
 			if (pixelsDiff !== 0) {
-				this._updateGolden = true;
 				await this._fs.writeCurrentStream(`${name}-diff`, diff.pack());
 				diffImageBase64 = await this._fs.getDiffImageBase64(`${name}-diff`);
 			}
+			if (pixelsDiff > allowedPixels) this._updateGolden = true;
 		} else {
 			this._updateGolden = true;
 		}
@@ -176,14 +177,14 @@ class VisualDiff {
 			name: name,
 			current: { base64Image: currentImageBase64, height: currentImage.height, width: currentImage.width },
 			golden: goldenImage ? { base64Image: goldenImageBase64, height: goldenImage.height, width: goldenImage.width } : null,
-			diff: { pixelsDiff: pixelsDiff, base64Image: (pixelsDiff > 0 ? diffImageBase64 : null) },
+			diff: { pixelsDiff: pixelsDiff, allowedPixels: allowedPixels, base64Image: (pixelsDiff > 0 ? diffImageBase64 : null) },
 		});
 
 		if (!_isLocalGoldenUpdate) {
 			expect(goldenImage !== null, 'golden exists').equal(true);
 			expect(currentImage.width, 'image widths are the same').equal(goldenImage.width);
 			expect(currentImage.height, 'image heights are the same').equal(goldenImage.height);
-			expect(pixelsDiff, 'number of different pixels').equal(0);
+			expect(pixelsDiff, 'number of different pixels').to.be.at.most(allowedPixels);
 		}
 	}
 
@@ -266,7 +267,7 @@ class VisualDiff {
 		const diffHtml = results.map((result) => {
 
 			return `
-				<div${result.diff.pixelsDiff === 0 ? ' class="success"' : ''}>
+				<div${result.diff.pixelsDiff === 0 ? ' class="success"' : (result.diff.pixelsDiff <= result.diff.allowedPixels ? ' class="warning"' : '')}>
 					<h2>${result.name}</h2>
 					<div class="compare">
 						${createCurrentHtml(result.current)}
@@ -292,7 +293,10 @@ class VisualDiff {
 						.compare > div { margin: 0 18px; }
 						.compare > div:first-child { margin: 0 18px 0 0; }
 						.compare > div:last-child { margin: 0 0 0 18px; }
-						.label { display: flex; font-size: 0.7rem; margin-bottom: 6px; }
+						.compare > div:last-child div:first-child:before { color: #cd2026; content: '✖'; margin-right: 0.4rem; }
+						.success .compare > div:last-child div:first-child:before { color: #8ad934; content: '✔'; }
+						.warning .compare > div:last-child div:first-child:before { color: #ffba59; content: '‼'; }
+						.label { align-items: center; display: flex; font-size: 0.7rem; margin-bottom: 6px; }
 						.meta { font-size: 0.7rem; margin-top: 24px; }
 						.meta > div { margin-bottom: 3px; }
 						.hide-success .success { display: none; }
@@ -301,7 +305,7 @@ class VisualDiff {
 				<body>
 					<h1>Visual-Diff</h1>
 					<input id="hideSuccesses" type="checkbox"></input>
-					<label for="hideSuccesses">Show Only Failed Tests</label>
+					<label for="hideSuccesses">Hide Successful Tests</label>
 					${diffHtml}
 					${createMetaHtml()}
 				</body>

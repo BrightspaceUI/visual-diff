@@ -49,4 +49,16 @@ describe('visual-diff', function() {
 		}
 	});
 
+	it('element-different-allowed', async function() {
+		const isGolden = process.argv.includes('--golden');
+		if (!isGolden) {
+			await page.evaluate(() => {
+				const elem = document.querySelector('#different-allowed');
+				elem.style.borderRadius = '3px';
+			});
+		}
+		const rect = await visualDiff.getRect(page, '#different-allowed');
+		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect }, { allowedPixels: 24 });
+	});
+
 });

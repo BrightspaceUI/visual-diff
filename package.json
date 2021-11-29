@@ -37,7 +37,7 @@
   "dependencies": {
     "aws-sdk": "^2",
     "chai": "^4",
-    "chalk": "^4",
+    "chalk": "^5",
     "es-dev-server": "^2",
     "pixelmatch": "^5"
   }

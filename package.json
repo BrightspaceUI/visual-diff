@@ -28,11 +28,11 @@
     "eslint-plugin-lit": "^1",
     "eslint-plugin-sort-class-members": "^1",
     "mocha": "^8",
-    "puppeteer": "^10"
+    "puppeteer": "^12"
   },
   "peerDependencies": {
     "mocha": "^8",
-    "puppeteer": "^10"
+    "puppeteer": "^12"
   },
   "dependencies": {
     "aws-sdk": "^2",

@@ -12,9 +12,11 @@
     "lint": "eslint . --ext .js,.html",
     "test": "npm run lint"
   },
+  "exports": "./index.js",
   "files": [
     "/helpers",
     "file-helper.js",
+    "index.js",
     "s3-helper.js",
     "visual-diff.js"
   ],

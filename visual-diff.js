@@ -1,9 +1,13 @@
-import { createPage, disableAnimations, getRect, oneEvent, resetFocus } from './helpers/index.js';
 import chalk from 'chalk';
+import createPage from './helpers/createPage.js';
+import disableAnimations from './helpers/disableAnimations.js';
 import { expect } from 'chai';
 import { FileHelper } from './file-helper.js';
+import getRect from './helpers/getRect.js';
+import oneEvent from './helpers/oneEvent.js';
 import pixelmatch from 'pixelmatch';
 import PNG from 'pngjs';
+import resetFocus from './helpers/resetFocus.js';
 import { startDevServer } from '@web/dev-server';
 import url from 'url';
 import { writeFileSync } from 'fs';

@@ -5,6 +5,7 @@ const pixelmatch = require('pixelmatch');
 const PNG = require('pngjs').PNG;
 const FileHelper = require('./file-helper.js');
 const fs = require('fs');
+const url = require('url');
 
 const _isCI = process.env['CI'] ? true : false;
 const _isLocalTestRun = !_isCI && !process.argv.includes('--golden');
@@ -50,6 +51,18 @@ class VisualDiff {
 		}
 		_testNames.push(name);
 
+		if (dir) {
+			// "dir" can be either "__dirname" from a non-ESM source,
+			// or "import.meta.url" from an ESM source.
+			try {
+				const parentDirAsURL = new URL('.', dir);
+				dir = url.fileURLToPath(parentDirAsURL);
+			// eslint-disable-next-line no-empty
+			} catch (e) {}
+		} else {
+			dir = process.cwd();
+		}
+
 		this.createPage = require('./helpers/createPage.js');
 		this.disableAnimations = require('./helpers/disableAnimations.js');
 		this.getRect = require('./helpers/getRect.js');
@@ -58,7 +71,7 @@ class VisualDiff {
 
 		this._results = [];
 		this._hasTestFailures = false;
-		this._fs = new FileHelper(name, `${dir ? dir : process.cwd()}/screenshots`, _isCI);
+		this._fs = new FileHelper(name, `${dir}/screenshots`, _isCI);
 		this._dpr = options && options.dpr ? options.dpr : 2;
 		this._tolerance = options && options.tolerance ? options.tolerance : 0;
 

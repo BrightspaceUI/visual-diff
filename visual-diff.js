@@ -324,7 +324,7 @@ class VisualDiff {
 				</body>
 				<script>
 					const checkbox = document.getElementById('hideSuccesses');
-					checkbox.addEventListener('change', function() {
+					checkbox.addEventListener('change', () => {
 						document.body.classList.toggle('hide-success', checkbox.checked);
 					});
 				</script>

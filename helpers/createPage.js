@@ -1,4 +1,4 @@
-module.exports = async(browser, options) => {
+export default async function createPage(browser, options) {
 	const page = await browser.newPage();
 	await page.emulateMediaFeatures([{
 		name: 'prefers-reduced-motion', value: 'reduce'
@@ -9,4 +9,4 @@ module.exports = async(browser, options) => {
 	}
 	await page.setViewport(viewportOptions);
 	return page;
-};
+}

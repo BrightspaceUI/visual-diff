@@ -1,6 +1,5 @@
-module.exports = {
-	createPage: require('./createPage.js'),
-	getRect: require('./getRect.js'),
-	oneEvent: require('./oneEvent.js'),
-	resetFocus: require('./resetFocus.js')
-};
+export { default as createPage } from './createPage.js';
+export { default as disableAnimations } from './disableAnimations.js';
+export { default as getRect } from './getRect.js';
+export { default as oneEvent } from './oneEvent.js';
+export { default as resetFocus } from './resetFocus.js';

@@ -1,16 +1,16 @@
-const chalk = require('chalk');
-const esDevServer = require('es-dev-server');
-const expect = require('chai').expect;
-const pixelmatch = require('pixelmatch');
-const PNG = require('pngjs').PNG;
-const FileHelper = require('./file-helper.js');
-const fs = require('fs');
-const url = require('url');
+import { createPage, disableAnimations, getRect, oneEvent, resetFocus } from './helpers/index.js';
+import chalk from 'chalk';
+import { expect } from 'chai';
+import { FileHelper } from './file-helper.js';
+import pixelmatch from 'pixelmatch';
+import PNG from 'pngjs';
+import { startDevServer } from '@web/dev-server';
+import url from 'url';
+import { writeFileSync } from 'fs';
 
 const _isCI = process.env['CI'] ? true : false;
 const _isLocalTestRun = !_isCI && !process.argv.includes('--golden');
 const _isLocalGoldenUpdate = !_isCI && process.argv.includes('--golden');
-const _serverOptions = esDevServer.createConfig({ babel: true, nodeResolve: true, dedupe: true });
 
 let _baseUrl;
 let _server;
@@ -20,19 +20,16 @@ let _failedReportLinks;
 const _testNames = [];
 
 before(async() => {
-	const { server } = await esDevServer.startServer(_serverOptions);
-	_server = server;
-
-	_baseUrl = `http://localhost:${_server.address().port}`;
-	process.stdout.write(`Started server with base: ${_baseUrl}\n\n`);
+	_server = await startDevServer({ config: { nodeResolve: true } });
+	_baseUrl = `http://localhost:${_server.config.port}`;
 });
 
 after(async() => {
 	if (_isCI && _failedReportLinks) {
-		fs.writeFileSync('failed-reports.txt', _failedReportLinks);
+		writeFileSync('failed-reports.txt', _failedReportLinks);
 	}
 	if (_server) {
-		await _server.close();
+		await _server.stop();
 		process.stdout.write('Stopped server.\n');
 	}
 	process.stdout.write(chalk.green(`\n  ${chalk.green(_goldenUpdateCount)} golden(s) updated.\n`));
@@ -41,9 +38,9 @@ after(async() => {
 	}
 });
 
-class VisualDiff {
+export default class VisualDiff {
 
-	constructor(name, dir, options) {
+	constructor(name, importMetaURL, options) {
 
 		if (_testNames.includes(name)) {
 			process.stdout.write(chalk.red(`\nDuplicate name key: ${name}.  VisualDiff configuration requires a unique name.\n`));
@@ -51,23 +48,13 @@ class VisualDiff {
 		}
 		_testNames.push(name);
 
-		if (dir) {
-			// "dir" can be either "__dirname" from a non-ESM source,
-			// or "import.meta.url" from an ESM source.
-			try {
-				const parentDirAsURL = new URL('.', dir);
-				dir = url.fileURLToPath(parentDirAsURL);
-			// eslint-disable-next-line no-empty
-			} catch (e) {}
-		} else {
-			dir = process.cwd();
-		}
+		const dir = importMetaURL ? url.fileURLToPath(new URL('.', importMetaURL)) : process.cwd();
 
-		this.createPage = require('./helpers/createPage.js');
-		this.disableAnimations = require('./helpers/disableAnimations.js');
-		this.getRect = require('./helpers/getRect.js');
-		this.oneEvent = require('./helpers/oneEvent.js');
-		this.resetFocus = require('./helpers/resetFocus.js');
+		this.createPage = createPage;
+		this.disableAnimations = disableAnimations;
+		this.getRect = getRect;
+		this.oneEvent = oneEvent;
+		this.resetFocus = resetFocus;
 
 		this._results = [];
 		this._hasTestFailures = false;
@@ -162,7 +149,7 @@ class VisualDiff {
 		let pixelsDiff, diffImageBase64;
 
 		if (goldenImage && currentImage.width === goldenImage.width && currentImage.height === goldenImage.height) {
-			const diff = new PNG({ width: currentImage.width, height: currentImage.height });
+			const diff = new PNG.PNG({ width: currentImage.width, height: currentImage.height });
 			pixelsDiff = pixelmatch(
 				currentImage.data, goldenImage.data, diff.data, currentImage.width, currentImage.height, { threshold: this._tolerance }
 			);
@@ -345,5 +332,3 @@ class VisualDiff {
 	}
 
 }
-
-module.exports = VisualDiff;

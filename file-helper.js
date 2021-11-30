@@ -1,8 +1,11 @@
-const fs = require('fs');
-const PNG = require('pngjs').PNG;
-const S3Helper = require('./s3-helper.js');
+import {
+	copyFileSync, createReadStream, createWriteStream, existsSync, lstatSync,
+	mkdirSync, readdirSync, readFileSync, rmdirSync, unlinkSync, writeFileSync
+} from 'fs';
+import PNG from 'pngjs';
+import { S3Helper } from './s3-helper.js';
 
-class FileHelper {
+export class FileHelper {
 
 	constructor(name, rootDir, isCI) {
 		this.s3 = new S3Helper(name);
@@ -15,7 +18,7 @@ class FileHelper {
 		this.currentDir = `${rootDir}/${this.currentSubDir}`;
 		this.goldenDir = `${rootDir}/${this.goldenSubDir}`;
 
-		if (!fs.existsSync(this.rootDir)) fs.mkdirSync(this.rootDir);
+		if (!existsSync(this.rootDir)) mkdirSync(this.rootDir);
 		this.makeDir(rootDir, this.goldenSubDir);
 
 		this.cleanDir(this.currentDir);
@@ -23,17 +26,17 @@ class FileHelper {
 	}
 
 	cleanDir(path, remove) {
-		if (fs.existsSync(path)) {
-			const files = fs.readdirSync(path);
+		if (existsSync(path)) {
+			const files = readdirSync(path);
 			files.forEach((file) => {
 				const currentPath = `${path}/${file}`;
-				if (fs.lstatSync(currentPath).isDirectory()) {
+				if (lstatSync(currentPath).isDirectory()) {
 					this.cleanDir(currentPath, true);
 				} else {
-					fs.unlinkSync(currentPath);
+					unlinkSync(currentPath);
 				}
 			});
-			if (remove) fs.rmdirSync(path);
+			if (remove) rmdirSync(path);
 		}
 	}
 
@@ -47,7 +50,7 @@ class FileHelper {
 	}
 
 	getCurrentFiles() {
-		return fs.readdirSync(this.currentDir);
+		return readdirSync(this.currentDir);
 	}
 
 	getCurrentImage(name) {
@@ -72,7 +75,7 @@ class FileHelper {
 	}
 
 	getGoldenFiles() {
-		return fs.readdirSync(this.goldenDir);
+		return readdirSync(this.goldenDir);
 	}
 
 	getGoldenImage(name) {
@@ -98,8 +101,8 @@ class FileHelper {
 
 	getImage(path) {
 		return new Promise((resolve) => {
-			const data = fs.readFileSync(path);
-			const image = PNG.sync.read(data);
+			const data = readFileSync(path);
+			const image = PNG.PNG.sync.read(data);
 			resolve(image);
 		});
 	}
@@ -107,7 +110,7 @@ class FileHelper {
 	getImageBase64(path) {
 		return new Promise((resolve) => {
 			let image = '';
-			fs.createReadStream(path, { encoding: 'base64' }).on('data', (data) => {
+			createReadStream(path, { encoding: 'base64' }).on('data', (data) => {
 				image += data;
 			}).on('end', () => {
 				resolve(image);
@@ -141,25 +144,25 @@ class FileHelper {
 
 	hasGoldenFile(name) {
 		const goldenPath = this.getGoldenPath(name);
-		return fs.existsSync(goldenPath);
+		return existsSync(goldenPath);
 	}
 
 	makeDir(rootDir, subDir) {
 		const dirs = subDir.split('/');
 		dirs.forEach((dir) => {
 			rootDir += `/${dir}`;
-			if (!fs.existsSync(rootDir)) fs.mkdirSync(rootDir);
+			if (!existsSync(rootDir)) mkdirSync(rootDir);
 		});
 	}
 
 	removeGoldenFile(name) {
 		const path = this.getGoldenPath(name);
-		if (fs.existsSync(path)) fs.unlinkSync(path);
+		if (existsSync(path)) unlinkSync(path);
 	}
 
 	updateGolden(name) {
-		if (!fs.existsSync(this.getCurrentPath(name))) return false;
-		fs.copyFileSync(this.getCurrentPath(name), this.getGoldenPath(name));
+		if (!existsSync(this.getCurrentPath(name))) return false;
+		copyFileSync(this.getCurrentPath(name), this.getGoldenPath(name));
 		return true;
 	}
 
@@ -167,7 +170,7 @@ class FileHelper {
 		const filePath = this.getCurrentPath(name);
 		const writeStream = () => {
 			const promise = new Promise((resolve) => {
-				stream.pipe(fs.createWriteStream(filePath)).on('finish', () => {
+				stream.pipe(createWriteStream(filePath)).on('finish', () => {
 					resolve();
 				});
 			});
@@ -179,10 +182,8 @@ class FileHelper {
 	async writeFile(name, content) {
 		if (!name || name.length === 0 || !content || content.length === 0) return;
 		const filePath = this.getCurrentPath(name);
-		fs.writeFileSync(filePath, content);
+		writeFileSync(filePath, content);
 		if (this.isCI) await this.s3.uploadFile(filePath);
 	}
 
 }
-
-module.exports = FileHelper;

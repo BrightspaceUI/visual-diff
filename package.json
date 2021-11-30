@@ -21,6 +21,7 @@
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@babel/core": "^7",
     "@babel/eslint-parser": "^7",
     "eslint": "^7",
     "eslint-config-brightspace": "^0.16",
@@ -29,11 +30,11 @@
     "eslint-plugin-lit": "^1",
     "eslint-plugin-sort-class-members": "^1",
     "mocha": "^9",
-    "puppeteer": "^10"
+    "puppeteer": "^12"
   },
   "peerDependencies": {
     "mocha": "^9",
-    "puppeteer": "^10"
+    "puppeteer": "^12"
   },
   "dependencies": {
     "@web/dev-server": "^0.1",

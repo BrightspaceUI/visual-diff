@@ -62,12 +62,12 @@ Create a `<my-element>.visual-diff.html` file containing the element to be teste
 Create a `<my-element>.visual-diff.js` file containing the tests, using a ***unique*** name for the set.
 
 ```js
-const puppeteer = require('puppeteer');
-const VisualDiff = require('visual-diff');
+import puppeteer from 'puppeteer';
+import VisualDiff from '@brightspace-ui/visual-diff';
 
 describe('d2l-button-icon', function() {
 
-  const visualDiff = new VisualDiff('button-icon', __dirname);
+  const visualDiff = new VisualDiff('button-icon', import.meta.url);
 
   let browser, page;
 
@@ -75,7 +75,7 @@ describe('d2l-button-icon', function() {
     browser = await puppeteer.launch();
     page = await visualDiff.createPage(browser);
     await page.goto(
-      `${visualDiff.getBaseUrl()}/.../button-icon.visual-diff.html`,
+      `${visualDiff.getBaseUrl()}/path/to/component/button-icon.visual-diff.html`,
       {waitUntil: ['networkidle0', 'load']}
     );
     await page.bringToFront();
@@ -114,7 +114,7 @@ describe('d2l-button-icon', function() {
 Components may also have asynchronous behaviors (loading data, animations, etc.) triggered by user-interaction which require the tests to wait before taking screenshots. This is typically handled by waiting for some event using one of a couple approaches. The first uses our `oneEvent` helper:
 
 ```js
-const { oneEvent } = require('@brightspace-ui/visual-diff/helpers');
+import oneEvent from '@brightspace-ui/visual-diff/helpers/oneEvent.js';
 
 it('some-test', async function() {
 
@@ -191,7 +191,7 @@ Use Puppeteer's `setViewport` API to perform visual-diff tests with different vi
 
 #### Right-to-Left (RTL)
 
-There are two approaches for setting up visual-diff tests in RTL. The first approach leverages the fact that our [RtlMixin](https://github.com/BrightspaceUI/core/blob/master/mixins/rtl-mixin.md) will honor `dir="rtl"` on elements.
+There are two approaches for setting up visual-diff tests in RTL. The first approach leverages the fact that our [RtlMixin](https://github.com/BrightspaceUI/core/blob/main/mixins/rtl-mixin.md) will honor `dir="rtl"` on elements.
 
 ```html
 <div class="visual-diff">
@@ -225,7 +225,7 @@ The second approach involves navigating the page using Puppeteer's `goto` API, p
 
     before(async() => {
       await page.goto(
-        `${visualDiff.getBaseUrl()}/.../button-icon.visual-diff.html?dir=${dir}`,
+        `${visualDiff.getBaseUrl()}/path/to/component/button-icon.visual-diff.html?dir=${dir}`,
         {waitUntil: ['networkidle0', 'load']}
       );
       await page.bringToFront();

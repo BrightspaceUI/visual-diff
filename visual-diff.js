@@ -235,7 +235,7 @@ class VisualDiff {
 			return createArtifactHtml(
 				name,
 				`w:${image.width / this._dpr} x h:${image.height / this._dpr}`,
-				`<img src="data:image/png;base64,${image.base64Image}" style="width: ${image.width / this._dpr}px; height: ${image.height / this._dpr}px;" alt="${name}" />`
+				`<img src="data:image/png;base64,${image.base64Image}" style="height: ${image.height / this._dpr}px; width: ${image.width / this._dpr}px;" alt="${name}" />`
 			);
 		};
 		const createNoImageHtml = (name, image, reason) => {
@@ -252,7 +252,7 @@ class VisualDiff {
 			if (diff.pixelsDiff === 0) {
 				return createNoImageHtml('Difference (0px)', defaultImage, 'Images match.');
 			} else if (diff.pixelsDiff > 0) {
-				return createArtifactHtml('Difference', `${diff.pixelsDiff / this._dpr}px`, `<img src="data:image/png;base64,${diff.base64Image}" style="width: ${defaultImage.width / this._dpr}px; height: ${defaultImage.height / this._dpr}px;" alt="Difference" />`);
+				return createArtifactHtml('Difference', `${diff.pixelsDiff / this._dpr}px`, `<img src="data:image/png;base64,${diff.base64Image}" style="height: ${defaultImage.height / this._dpr}px; width: ${defaultImage.width / this._dpr}px;" alt="Difference" />`);
 			} else if (goldenImage) {
 				return createNoImageHtml('Difference', defaultImage, 'Images are not the same size.');
 			} else {
@@ -296,7 +296,12 @@ class VisualDiff {
 					<title>visual-diff</title>
 					<style>
 						html { font-size: 20px; }
-						body { font-family: sans-serif; background-color: #333; color: #fff; margin: 18px; }
+						body {
+							background-color: #333333;
+							color: #ffffff;
+							font-family: sans-serif;
+							margin: 18px;
+						}
 						h1 { font-size: 1.2rem; font-weight: 400; margin: 24px 0; }
 						h2 { font-size: 0.9rem; font-weight: 400; margin: 30px 0 18px 0; }
 						a { color: #006fbf; }
@@ -306,10 +311,15 @@ class VisualDiff {
 						.compare > div { margin: 0 18px; }
 						.compare > div:first-child { margin: 0 18px 0 0; }
 						.compare > div:last-child { margin: 0 0 0 18px; }
-						.compare > div:last-child div:first-child:before { color: #cd2026; content: '\\2716'; margin-right: 0.4rem; }
-						.success .compare > div:last-child div:first-child:before { color: #8ad934; content: '\\2714'; }
-						.warning .compare > div:last-child div:first-child:before { color: #ffba59; content: '\\203C'; }
-						.label { align-items: center; display: flex; font-size: 0.7rem; margin-bottom: 6px; }
+						.compare > div:last-child div:first-child::before { color: #cd2026; content: '\\2716'; margin-right: 0.4rem; }
+						.success .compare > div:last-child div:first-child::before { color: #8ad934; content: '\\2714'; }
+						.warning .compare > div:last-child div:first-child::before { color: #ffba59; content: '\\203C'; }
+						.label {
+							align-items: center;
+							display: flex;
+							font-size: 0.7rem;
+							margin-bottom: 6px;
+						}
 						.meta { font-size: 0.7rem; margin-top: 24px; }
 						.meta > div { margin-bottom: 3px; }
 						.hide-success .success { display: none; }

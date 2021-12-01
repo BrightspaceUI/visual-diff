@@ -1,7 +1,7 @@
-const AWS = require('aws-sdk');
-const chalk = require('chalk');
-const fs = require('fs');
-const path = require('path');
+import AWS from 'aws-sdk';
+import chalk from 'chalk';
+import { createReadStream } from 'fs';
+import path from 'path';
 
 let _s3Config;
 
@@ -41,7 +41,7 @@ async function getS3Creds() {
 	});
 }
 
-class S3Helper {
+export class S3Helper {
 
 	constructor(name) {
 		this.name = name;
@@ -85,7 +85,7 @@ class S3Helper {
 		};
 
 		return new Promise((resolve, reject) => {
-			const fileStream = fs.createReadStream(filePath);
+			const fileStream = createReadStream(filePath);
 
 			fileStream.on('error', (err) => {
 				process.stdout.write(`\n${chalk.red(err)}`);
@@ -107,5 +107,3 @@ class S3Helper {
 	}
 
 }
-
-module.exports = S3Helper;

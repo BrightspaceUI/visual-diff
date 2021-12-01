@@ -17,10 +17,6 @@ If you want to install locally for test creation and troubleshooting, run:
 npm i mocha -g
 npm i @brightspace-ui/visual-diff puppeteer --no-save
 ```
-If your visual diff tests are written as ES Modules, you'll need to install `esm` as well (everything must be installed all at once):
-```shell
-npm i @brightspace-ui/visual-diff puppeteer esm --no-save
-```
 
 ## Writing Tests
 
@@ -63,7 +59,7 @@ Create a `<my-element>.visual-diff.js` file containing the tests, using a ***uni
 
 ```js
 import puppeteer from 'puppeteer';
-import VisualDiff from '@brightspace-ui/visual-diff';
+import { VisualDiff } from '@brightspace-ui/visual-diff';
 
 describe('d2l-button-icon', function() {
 
@@ -114,7 +110,7 @@ describe('d2l-button-icon', function() {
 Components may also have asynchronous behaviors (loading data, animations, etc.) triggered by user-interaction which require the tests to wait before taking screenshots. This is typically handled by waiting for some event using one of a couple approaches. The first uses our `oneEvent` helper:
 
 ```js
-import oneEvent from '@brightspace-ui/visual-diff/helpers/oneEvent.js';
+import { oneEvent } from '@brightspace-ui/visual-diff';
 
 it('some-test', async function() {
 
@@ -143,7 +139,6 @@ it('some-test', async function() {
 
     })
   });
-
 
   const rect = await visualDiff.getRect(page, '#simple');
   await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
@@ -285,11 +280,6 @@ Because of the difference in local and CI environments, you can't commit the gol
 ```
 <path_to_test>/test/screenshots/current/
 <path_to_test>/test/screenshots/golden/
-```
-
-If your visual diff tests are written as ES Modules, you'll need to include `--require esm` in your `mocha` call:
-```shell
-mocha './test/**/*.visual-diff.js' -t 10000 --require esm
 ```
 
 ***Tips:***

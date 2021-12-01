@@ -1,4 +1,4 @@
-module.exports = async(page) => {
+export default async function resetFocus(page) {
 	await page.evaluate(() => {
 		let elem = document.querySelector('#vd-focus');
 		if (!elem) {
@@ -10,4 +10,4 @@ module.exports = async(page) => {
 		}
 	});
 	await page.click('#vd-focus');
-};
+}

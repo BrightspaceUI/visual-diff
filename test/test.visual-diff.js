@@ -1,10 +1,10 @@
-const expect = require('chai').expect;
-const puppeteer = require('puppeteer');
-const VisualDiff = require('../visual-diff.js');
+import { expect } from 'chai';
+import puppeteer from 'puppeteer';
+import VisualDiff from '../visual-diff.js';
 
 describe('visual-diff', function() {
 
-	const visualDiff = new VisualDiff('visual-diff', __dirname);
+	const visualDiff = new VisualDiff('visual-diff', import.meta.url);
 
 	let browser, page;
 

@@ -1,4 +1,4 @@
-module.exports = async(page, selector, margin) => {
+export default async function getRect(page, selector, margin) {
 	margin = (margin !== undefined) ? margin : 10;
 	return page.$eval(selector, (elem, margin) => {
 		const leftMargin = (elem.offsetLeft < margin ? 0 : margin);
@@ -10,4 +10,4 @@ module.exports = async(page, selector, margin) => {
 			height: elem.offsetHeight + (topMargin * 2)
 		};
 	}, margin);
-};
+}

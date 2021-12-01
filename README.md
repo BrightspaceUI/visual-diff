@@ -10,12 +10,11 @@ A visual difference utility using Mocha, Chai, Puppeteer, and PixelMatch.
 
 ## Installation
 
-This package is designed to be used alongside the [visual-diff GitHub action](https://github.com/BrightspaceUI/actions/tree/master/visual-diff).  That action will handle installing so you don't need to include `visual-diff` and `puppeteer` in your repo's `devDependencies`.
+This package is designed to be used alongside the [visual-diff GitHub action](https://github.com/BrightspaceUI/actions/tree/main/visual-diff).  That action will handle installing so you don't need to include `visual-diff` and `puppeteer` in your repo's `devDependencies`.
 
 If you want to install locally for test creation and troubleshooting, run:
 ```shell
-npm i mocha -g
-npm i @brightspace-ui/visual-diff puppeteer --no-save
+npm install mocha puppeteer @brightspace-ui/visual-diff --no-save
 ```
 
 ## Writing Tests
@@ -260,7 +259,7 @@ Alternatively, visual-diff tests can wait for `transitionend` and `animationend`
 
 ### In CI
 
-This package is designed to be used alongside the [visual-diff github action](https://github.com/BrightspaceUI/actions/tree/master/visual-diff).  Check out the README there for setup details.
+This package is designed to be used alongside the [visual-diff github action](https://github.com/BrightspaceUI/actions/tree/main/visual-diff).  Check out the README there for setup details.
 
 The action will handle installation and running the tests, as well as automatically opening a PR for any golden updates that are needed.
 
@@ -290,7 +289,7 @@ Because of the difference in local and CI environments, you can't commit the gol
 
 > TL;DR: Commits prefixed with `fix:` and `feat:` will trigger patch and minor releases when merged to `main`. Read on for more details...
 
-The [sematic-release GitHub Action](https://github.com/BrightspaceUI/actions/tree/master/semantic-release) is called from the `release.yml` GitHub Action workflow to handle version changes and releasing.
+The [sematic-release GitHub Action](https://github.com/BrightspaceUI/actions/tree/main/semantic-release) is called from the `release.yml` GitHub Action workflow to handle version changes and releasing.
 
 ### Version Changes
 

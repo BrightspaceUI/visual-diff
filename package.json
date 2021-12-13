@@ -32,11 +32,11 @@
     "eslint-plugin-lit": "^1",
     "eslint-plugin-sort-class-members": "^1",
     "mocha": "^9",
-    "puppeteer": "^12"
+    "puppeteer": "^13"
   },
   "peerDependencies": {
     "mocha": "^9",
-    "puppeteer": "^12"
+    "puppeteer": "^13"
   },
   "dependencies": {
     "@web/dev-server": "^0.1",

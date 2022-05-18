@@ -289,8 +289,8 @@ Because of the difference in local and CI environments, you can't commit the gol
 * use Mocha's grep option to run a subset locally (i.e. `mocha './test/**/*.visual-diff.js' -t 10000 -- -g some-pattern`)
 
 ***Troubleshooting:***
+* The visual-diff tests require using a **non-Admin** terminal to run the tests - otherwise, Chromium does not navigate to the `html` test page
 * To see what a test is doing to help you debug issues, you can replace the `browser = await puppeteer.launch();` line in the `js` file with `browser = await puppeteer.launch({ headless: false });` locally
-* If you do this and see that Chromium is not navigating to the visual-diff `html` test page, make sure you are using a **non-Admin** terminal to run the tests
 
 ## Versioning & Releasing
 

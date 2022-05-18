@@ -288,6 +288,10 @@ Because of the difference in local and CI environments, you can't commit the gol
 * specify a longer Mocha timeout (while a screenshot is worth a 1000 tests, each screenshot is slower compared to a typical  unit test)
 * use Mocha's grep option to run a subset locally (i.e. `mocha './test/**/*.visual-diff.js' -t 10000 -- -g some-pattern`)
 
+***Troubleshooting:***
+* To see what a test is doing to help you debug issues, you can replace the `browser = await puppeteer.launch();` line in the `js` file with `browser = await puppeteer.launch({ headless: false });` locally
+* If you do this and see that Chromium is not navigating to the visual-diff `html` test page, make sure you are using a **non-Admin** terminal to run the tests
+
 ## Versioning & Releasing
 
 > TL;DR: Commits prefixed with `fix:` and `feat:` will trigger patch and minor releases when merged to `main`. Read on for more details...

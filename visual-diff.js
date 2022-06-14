@@ -16,6 +16,15 @@ const _isCI = process.env['CI'] ? true : false;
 const _isLocalTestRun = !_isCI && !process.argv.includes('--golden');
 const _isLocalGoldenUpdate = !_isCI && process.argv.includes('--golden');
 
+let _numTries = 1;
+for (let i = 0; i < process.argv.length; i++) {
+	if (!process.argv[i].includes('--retries')) continue;
+	const retriesArg = process.argv.slice(i).toString();
+	if (retriesArg && retriesArg.includes('=')) _numTries += parseInt(retriesArg.split('=')[1]);
+	break;
+}
+const _triesPerTest = {};
+
 let _baseUrl;
 let _server;
 let _goldenUpdateCount = 0;
@@ -138,10 +147,13 @@ export default class VisualDiff {
 
 		await page.screenshot(info);
 
-		await this._compare(name, compareOptions);
+		if (!_triesPerTest[name]) _triesPerTest[name] = 0;
+		_triesPerTest[name]++;
+
+		await this._compare(name, compareOptions, _triesPerTest[name]);
 	}
 
-	async _compare(name, options) {
+	async _compare(name, options, tryNum) {
 
 		const currentImage = await this._fs.getCurrentImage(name);
 		const goldenImage = await this._fs.getGoldenImage(name);
@@ -166,23 +178,32 @@ export default class VisualDiff {
 			this._updateGolden = true;
 		}
 
-		if (this._updateGolden && !_isLocalTestRun) {
-			this._hasTestFailures = true;
-			const result = await this._fs.updateGolden(name);
-			if (result) {
-				_goldenUpdateCount++;
-			} else {
-				this._updateError = true;
-				_goldenErrorCount++;
-			}
-		}
+		const isPass = (goldenImage !== null)
+			&& (currentImage.width === goldenImage.width)
+			&& (currentImage.height === goldenImage.height)
+			&& (pixelsDiff <= allowedPixels);
 
-		this._results.push({
-			name: name,
-			current: { base64Image: currentImageBase64, height: currentImage.height, width: currentImage.width },
-			golden: goldenImage ? { base64Image: goldenImageBase64, height: goldenImage.height, width: goldenImage.width } : null,
-			diff: { pixelsDiff: pixelsDiff, allowedPixels: allowedPixels, base64Image: (pixelsDiff > 0 ? diffImageBase64 : null) },
-		});
+		if (isPass || (!isPass && tryNum === _numTries)) {
+			if (this._updateGolden && !_isLocalTestRun) {
+				this._hasTestFailures = true;
+				const result = await this._fs.updateGolden(name);
+				if (result) {
+					_goldenUpdateCount++;
+				} else {
+					this._updateError = true;
+					_goldenErrorCount++;
+				}
+			}
+
+			this._results.push({
+				name: name,
+				current: { base64Image: currentImageBase64, height: currentImage.height, width: currentImage.width },
+				golden: goldenImage ? { base64Image: goldenImageBase64, height: goldenImage.height, width: goldenImage.width } : null,
+				diff: { pixelsDiff: pixelsDiff, allowedPixels: allowedPixels, base64Image: (pixelsDiff > 0 ? diffImageBase64 : null) },
+			});
+		} else if (!isPass && tryNum < _numTries) {
+			console.warn(`VISUAL DIFF: WARNING: Test "${name}" failed. Try number: ${tryNum}. Retrying...`);
+		}
 
 		if (!_isLocalGoldenUpdate) {
 			expect(goldenImage !== null, 'golden exists').equal(true);

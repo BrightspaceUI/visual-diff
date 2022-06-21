@@ -4,6 +4,7 @@ import disableAnimations from './helpers/disableAnimations.js';
 import { expect } from 'chai';
 import { FileHelper } from './file-helper.js';
 import getRect from './helpers/getRect.js';
+import { hideBin } from 'yargs/helpers';
 import oneEvent from './helpers/oneEvent.js';
 import pixelmatch from 'pixelmatch';
 import PNG from 'pngjs';
@@ -11,18 +12,16 @@ import resetFocus from './helpers/resetFocus.js';
 import { startDevServer } from '@web/dev-server';
 import url from 'url';
 import { writeFileSync } from 'fs';
+import yargs from 'yargs';
+
+const _argv = yargs(hideBin(process.argv)).argv;
 
 const _isCI = process.env['CI'] ? true : false;
-const _isLocalTestRun = !_isCI && !process.argv.includes('--golden');
-const _isLocalGoldenUpdate = !_isCI && process.argv.includes('--golden');
+const _updateGoldens = _argv.golden || false;
+const _isLocalTestRun = !_isCI && !_updateGoldens;
+const _isLocalGoldenUpdate = !_isCI && _updateGoldens;
 
-let _numTries = 1;
-for (let i = 0; i < process.argv.length; i++) {
-	if (!process.argv[i].includes('--retries')) continue;
-	const retriesArg = process.argv.slice(i).toString();
-	if (retriesArg && retriesArg.includes('=')) _numTries += parseInt(retriesArg.split('=')[1]);
-	break;
-}
+const _numTries = 1 + (_argv.retries || 0);
 const _triesPerTest = {};
 
 let _baseUrl;
@@ -163,6 +162,7 @@ export default class VisualDiff {
 
 		const allowedPixels = options && options.allowedPixels ? options.allowedPixels : 0;
 		let pixelsDiff, diffImageBase64;
+		let isPass = false;
 
 		if (goldenImage && currentImage.width === goldenImage.width && currentImage.height === goldenImage.height) {
 			const diff = new PNG.PNG({ width: currentImage.width, height: currentImage.height });
@@ -174,16 +174,12 @@ export default class VisualDiff {
 				diffImageBase64 = await this._fs.getDiffImageBase64(`${name}-diff`);
 			}
 			if (pixelsDiff > allowedPixels) this._updateGolden = true;
+			else isPass = true;
 		} else {
 			this._updateGolden = true;
 		}
 
-		const isPass = (goldenImage !== null)
-			&& (currentImage.width === goldenImage.width)
-			&& (currentImage.height === goldenImage.height)
-			&& (pixelsDiff <= allowedPixels);
-
-		if (isPass || (!isPass && tryNum === _numTries)) {
+		if (isPass || (tryNum === _numTries) || _isLocalGoldenUpdate) {
 			if (this._updateGolden && !_isLocalTestRun) {
 				this._hasTestFailures = true;
 				const result = await this._fs.updateGolden(name);

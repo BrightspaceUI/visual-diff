@@ -44,6 +44,7 @@
     "chai": "^4",
     "chalk": "^5",
     "pixelmatch": "^5",
-    "pngjs": "^6"
+    "pngjs": "^6",
+    "yargs": "^17"
   }
 }

@@ -4,6 +4,7 @@ import disableAnimations from './helpers/disableAnimations.js';
 import { expect } from 'chai';
 import { FileHelper } from './file-helper.js';
 import getRect from './helpers/getRect.js';
+import { hideBin } from 'yargs/helpers';
 import oneEvent from './helpers/oneEvent.js';
 import pixelmatch from 'pixelmatch';
 import PNG from 'pngjs';
@@ -11,10 +12,17 @@ import resetFocus from './helpers/resetFocus.js';
 import { startDevServer } from '@web/dev-server';
 import url from 'url';
 import { writeFileSync } from 'fs';
+import yargs from 'yargs';
+
+const _argv = yargs(hideBin(process.argv)).argv;
 
 const _isCI = process.env['CI'] ? true : false;
-const _isLocalTestRun = !_isCI && !process.argv.includes('--golden');
-const _isLocalGoldenUpdate = !_isCI && process.argv.includes('--golden');
+const _updateGoldens = _argv.golden || false;
+const _isLocalTestRun = !_isCI && !_updateGoldens;
+const _isLocalGoldenUpdate = !_isCI && _updateGoldens;
+
+const _numTries = 1 + (_argv.retries || 0);
+const _triesPerTest = {};
 
 let _baseUrl;
 let _server;
@@ -138,10 +146,13 @@ export default class VisualDiff {
 
 		await page.screenshot(info);
 
-		await this._compare(name, compareOptions);
+		if (!_triesPerTest[name]) _triesPerTest[name] = 0;
+		_triesPerTest[name]++;
+
+		await this._compare(name, compareOptions, _triesPerTest[name]);
 	}
 
-	async _compare(name, options) {
+	async _compare(name, options, tryNum) {
 
 		const currentImage = await this._fs.getCurrentImage(name);
 		const goldenImage = await this._fs.getGoldenImage(name);
@@ -151,6 +162,7 @@ export default class VisualDiff {
 
 		const allowedPixels = options && options.allowedPixels ? options.allowedPixels : 0;
 		let pixelsDiff, diffImageBase64;
+		let isPass = false;
 
 		if (goldenImage && currentImage.width === goldenImage.width && currentImage.height === goldenImage.height) {
 			const diff = new PNG.PNG({ width: currentImage.width, height: currentImage.height });
@@ -162,27 +174,32 @@ export default class VisualDiff {
 				diffImageBase64 = await this._fs.getDiffImageBase64(`${name}-diff`);
 			}
 			if (pixelsDiff > allowedPixels) this._updateGolden = true;
+			else isPass = true;
 		} else {
 			this._updateGolden = true;
 		}
 
-		if (this._updateGolden && !_isLocalTestRun) {
-			this._hasTestFailures = true;
-			const result = await this._fs.updateGolden(name);
-			if (result) {
-				_goldenUpdateCount++;
-			} else {
-				this._updateError = true;
-				_goldenErrorCount++;
+		if (isPass || (tryNum === _numTries) || _isLocalGoldenUpdate) {
+			if (this._updateGolden && !_isLocalTestRun) {
+				this._hasTestFailures = true;
+				const result = await this._fs.updateGolden(name);
+				if (result) {
+					_goldenUpdateCount++;
+				} else {
+					this._updateError = true;
+					_goldenErrorCount++;
+				}
 			}
-		}
 
-		this._results.push({
-			name: name,
-			current: { base64Image: currentImageBase64, height: currentImage.height, width: currentImage.width },
-			golden: goldenImage ? { base64Image: goldenImageBase64, height: goldenImage.height, width: goldenImage.width } : null,
-			diff: { pixelsDiff: pixelsDiff, allowedPixels: allowedPixels, base64Image: (pixelsDiff > 0 ? diffImageBase64 : null) },
-		});
+			this._results.push({
+				name: name,
+				current: { base64Image: currentImageBase64, height: currentImage.height, width: currentImage.width },
+				golden: goldenImage ? { base64Image: goldenImageBase64, height: goldenImage.height, width: goldenImage.width } : null,
+				diff: { pixelsDiff: pixelsDiff, allowedPixels: allowedPixels, base64Image: (pixelsDiff > 0 ? diffImageBase64 : null) },
+			});
+		} else if (!isPass && tryNum < _numTries) {
+			console.warn(`VISUAL DIFF: WARNING: Test "${name}" failed. Try number: ${tryNum}. Retrying...`);
+		}
 
 		if (!_isLocalGoldenUpdate) {
 			expect(goldenImage !== null, 'golden exists').equal(true);

@@ -188,7 +188,7 @@ Use Puppeteer's `setViewport` API to perform visual-diff tests with different vi
 
 #### Right-to-Left (RTL)
 
-There are two approaches for setting up visual-diff tests in RTL. The first approach leverages the fact that our [RtlMixin](https://github.com/BrightspaceUI/core/blob/main/mixins/rtl-mixin.md) will honor `dir="rtl"` on elements.
+There are two approaches for setting up visual-diff tests in RTL. The first approach leverages the fact that our [RtlMixin](https://github.com/BrightspaceUI/core/blob/main/mixins/rtl-mixin.md) will honor `dir="rtl"` on elements. It works for simple components that aren't composed of other components that are also sensitive to the text direction. It has the advantage of not requiring a page reload between sets of tests.
 
 ```html
 <div class="visual-diff">
@@ -196,7 +196,7 @@ There are two approaches for setting up visual-diff tests in RTL. The first appr
 </div>
 ```
 
-The second approach involves navigating the page using Puppeteer's `goto` API, passing a query-string parameter that is used to apply `dir="rtl"` to the document. It requires more setup, but is useful in scenarios where many fixtures contain many elements that would all otherwise require `dir="rtl"`.
+The second approach involves navigating the page using Puppeteer's `goto` API, passing a query-string parameter that is used to apply `dir="rtl"` to the document. It requires more setup, but is useful in scenarios where fixtures contain many elements or have elements that are composed of other components that would require `dir="rtl"`. This approach best matches how our pages are rendered.
 
 ```html
 <!DOCTYPE html>

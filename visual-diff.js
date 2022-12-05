@@ -16,7 +16,7 @@ import yargs from 'yargs';
 
 const _argv = yargs(hideBin(process.argv)).argv;
 
-const _isCI = process.env['CI'] ? true : false;
+const _isCI = !!process.env['CI'];
 const _updateGoldens = _argv.golden || false;
 const _isLocalTestRun = !_isCI && !_updateGoldens;
 const _isLocalGoldenUpdate = !_isCI && _updateGoldens;

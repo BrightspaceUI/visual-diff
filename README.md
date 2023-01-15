@@ -15,10 +15,10 @@ This package is designed to be used alongside the [visual-diff GitHub action](ht
 To run the tests locally to help troubleshoot or develop new tests, first install these dependencies:
 
 ```shell
-npm install @brightspace-ui/visual-diff@X mocha@Y puppeteer@Z  --no-save
+npm install @brightspace-ui/visual-diff@X  --no-save
 ```
 
-Replace `X`, `Y` and `Z` with [the current versions](https://github.com/BrightspaceUI/actions/tree/main/visual-diff#current-dependency-versions) the action is using.
+Replace `X` with [the current version](https://github.com/BrightspaceUI/actions/tree/main/visual-diff#current-dependency-versions) the action is using.
 
 ## Writing Tests
 
@@ -89,7 +89,7 @@ describe('d2l-button-icon', function() {
   });
 
   it('focus', async function() {
-    await focus(page, '#simple');
+    await visualDiff.focus(page, '#simple');
     const rect = await visualDiff.getRect(page, '#simple');
     await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
   });
@@ -257,6 +257,31 @@ Alternatively, visual-diff tests can wait for `transitionend` and `animationend`
 * these events are not composed and requires tests having knowledge of component internals
 * these events may be dispatched more than once when multiple properties are animated
 * waiting for animations makes the tests run slower
+
+#### API
+
+```js
+// creates a browser page with reduced motion; optional options to override default 800x800px dimensions (ex. { viewport: { width: 700, height: 400 } })
+await visualDiff.createPage(browser, options);
+
+// selects an element in the document's light-DOM and focuses it
+await visualDiff.focus(page, selector);
+
+// gets the base URL of the server (ex. http://localhost:8000)
+visualDiff.getBaseUrl();
+
+// selects an element in the document's light-DOM and gets a rect object for use with screenshotAndCompare (ex. { x: 50, y: 50, width: 200, height: 100 }); optional margin default is 10px
+await visualDiff.getRect(page, selector, margin);
+
+// selects an element in the document's light-DOM and awaits the specified event
+await visualDiff.oneEvent(page, selector, name);
+
+// removes focus from current active element
+await visualDiff.resetFocus(page);
+
+// takes screenshot using specified clip rect (ex. { clip: rect }) to generate or compare to golden; optional compareOptions (ex. { allowedPixels: 24 })
+await visualDiff.screenshotAndCompare(page, name, screenshotOptions, compareOptions);
+```
 
 ## Running Tests
 

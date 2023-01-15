@@ -3,6 +3,7 @@ import createPage from './helpers/createPage.js';
 import disableAnimations from './helpers/disableAnimations.js';
 import { expect } from 'chai';
 import { FileHelper } from './file-helper.js';
+import focus from './helpers/focus.js';
 import getRect from './helpers/getRect.js';
 import { hideBin } from 'yargs/helpers';
 import oneEvent from './helpers/oneEvent.js';
@@ -64,6 +65,7 @@ export default class VisualDiff {
 
 		this.createPage = createPage;
 		this.disableAnimations = disableAnimations;
+		this.focus = focus;
 		this.getRect = getRect;
 		this.oneEvent = oneEvent;
 		this.resetFocus = resetFocus;

@@ -261,6 +261,8 @@ Alternatively, visual-diff tests can wait for `transitionend` and `animationend`
 #### API
 
 ```js
+import { createPage, focus, getRect, oneEvent, resetFocus, VisualDiff } from '@brightspace-ui/visual-diff';
+
 // creates a browser page with reduced motion;
 // optional options to override default 800x800px dimensions (ex. { viewport: { width: 700, height: 400 } })
 await createPage(browser, options);

@@ -61,7 +61,7 @@ Create a `<my-element>.visual-diff.js` file containing the tests, using a ***uni
 
 ```js
 import puppeteer from 'puppeteer';
-import { VisualDiff } from '@brightspace-ui/visual-diff';
+import { focus, VisualDiff } from '@brightspace-ui/visual-diff';
 
 describe('d2l-button-icon', function() {
 
@@ -89,7 +89,7 @@ describe('d2l-button-icon', function() {
   });
 
   it('focus', async function() {
-    await visualDiff.focus(page, '#simple');
+    await focus(page, '#simple');
     const rect = await visualDiff.getRect(page, '#simple');
     await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
   });
@@ -263,23 +263,23 @@ Alternatively, visual-diff tests can wait for `transitionend` and `animationend`
 ```js
 // creates a browser page with reduced motion;
 // optional options to override default 800x800px dimensions (ex. { viewport: { width: 700, height: 400 } })
-await visualDiff.createPage(browser, options);
+await createPage(browser, options);
 
 // selects an element in the document's light-DOM and focuses it
-await visualDiff.focus(page, selector);
-
-// gets the base URL of the server (ex. http://localhost:8000)
-visualDiff.getBaseUrl();
+await focus(page, selector);
 
 // selects an element in the document's light-DOM and gets a rect object for use with screenshotAndCompare (ex. { x: 50, y: 50, width: 200, height: 100 });
 // optional margin default is 10px
-await visualDiff.getRect(page, selector, margin);
+await getRect(page, selector, margin);
 
 // selects an element in the document's light-DOM and awaits the specified event
-await visualDiff.oneEvent(page, selector, name);
+await oneEvent(page, selector, name);
 
 // removes focus from current active element
-await visualDiff.resetFocus(page);
+await resetFocus(page);
+
+// gets the base URL of the server (ex. http://localhost:8000)
+visualDiff.getBaseUrl();
 
 // takes screenshot using specified clip rect (ex. { clip: rect }) to generate or compare to golden;
 // optional compareOptions (ex. { allowedPixels: 24 })

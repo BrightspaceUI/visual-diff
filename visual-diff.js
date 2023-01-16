@@ -65,9 +65,7 @@ export default class VisualDiff {
 
 		this.createPage = createPage;
 		this.disableAnimations = disableAnimations;
-		this.focus = focus;
 		this.getRect = getRect;
-		this.oneEvent = oneEvent;
 		this.resetFocus = resetFocus;
 
 		this._results = [];

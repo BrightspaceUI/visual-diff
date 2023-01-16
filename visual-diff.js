@@ -5,7 +5,6 @@ import { expect } from 'chai';
 import { FileHelper } from './file-helper.js';
 import getRect from './helpers/getRect.js';
 import { hideBin } from 'yargs/helpers';
-import oneEvent from './helpers/oneEvent.js';
 import pixelmatch from 'pixelmatch';
 import PNG from 'pngjs';
 import resetFocus from './helpers/resetFocus.js';
@@ -65,7 +64,6 @@ export default class VisualDiff {
 		this.createPage = createPage;
 		this.disableAnimations = disableAnimations;
 		this.getRect = getRect;
-		this.oneEvent = oneEvent;
 		this.resetFocus = resetFocus;
 
 		this._results = [];

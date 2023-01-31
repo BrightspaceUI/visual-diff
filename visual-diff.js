@@ -27,6 +27,7 @@ let _baseUrl;
 let _server;
 let _goldenUpdateCount = 0;
 let _goldenErrorCount = 0;
+let _goldenOrphanCount = 0;
 let _failedReportLinks;
 const _testNames = [];
 
@@ -44,8 +45,17 @@ after(async() => {
 		process.stdout.write('Stopped server.\n');
 	}
 	process.stdout.write(chalk.green(`\n  ${chalk.green(_goldenUpdateCount)} golden(s) updated.\n`));
+	if (_goldenOrphanCount > 0) {
+		process.stdout.write(chalk.green(`\n  ${chalk.green(_goldenOrphanCount)} golden(s) orphaned.\n`));
+	}
 	if (_goldenErrorCount > 0) {
-		process.stdout.write(chalk.red(`  ${chalk.red(_goldenErrorCount)} golden updates failed.\n`));
+		process.stdout.write(chalk.red(`\n  ${chalk.red(_goldenErrorCount)} golden updates failed.\n`));
+	}
+	process.stdout.write('\n');
+
+	if (_goldenUpdateCount === 0 && _goldenOrphanCount > 0) {
+		// force return code if no tests are triggering updates, otherwise PR will not be opened to remove orhpahned goldens
+		process.exit(1);
 	}
 });
 
@@ -220,6 +230,7 @@ export default class VisualDiff {
 					process.stdout.write('\n      Removed orphaned goldens.\n');
 					orphansExist = true;
 				}
+				_goldenOrphanCount++;
 				await this._fs.removeGoldenFile(fileName);
 				process.stdout.write(`      ${chalk.gray(fileName)}\n`);
 			}

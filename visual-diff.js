@@ -54,7 +54,7 @@ after(async() => {
 	process.stdout.write('\n');
 
 	if (_goldenUpdateCount === 0 && _goldenOrphanCount > 0) {
-		// force return code if no tests are triggering updates, otherwise PR will not be opened to remove orhpahned goldens
+		// force return code if no tests are triggering updates, otherwise PR will not be opened to remove orphaned goldens
 		process.exit(1);
 	}
 });

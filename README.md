@@ -1,4 +1,5 @@
 # visual-diff
+
 [![NPM version](https://img.shields.io/npm/v/@brightspace-ui/visual-diff.svg)](https://www.npmjs.org/package/@brightspace-ui/visual-diff)
 [![NPM downloads](https://img.shields.io/npm/dt/@brightspace-ui/visual-diff.svg)](https://www.npmjs.com/package/@brightspace-ui/visual-diff)
 
@@ -98,6 +99,7 @@ describe('d2l-button-icon', function() {
 ```
 
 ***Tips:***
+
 * include `typography.js` to load our fonts, etc.
 * provide some whitespace around the fixture so screenshots do not include other fixtures on the page when larger clip dimensions are used
 * use the `createPage(browser)` helper to create a page with the reduced motion preference, default view-port dimensions (800x800), and device scaling factor (device pixel ratio).
@@ -149,6 +151,7 @@ it('some-test', async function() {
 ```
 
 ***Tips:***
+
 * use the `oneEvent` visual-diff helper to wait for events
 * not all events bubble, and not all events are composed, so in some cases it's necessary to wire-up directly to the element dispatching the event
 * animation and transition event handlers may be called more than once if multiple properties are being animated. For animations, it is best if the component supports `prefers-reduced-motion: reduce`. See Animations below.
@@ -182,6 +185,7 @@ Use Puppeteer's `setViewport` API to perform visual-diff tests with different vi
 ```
 
 ***Tips:***
+
 * run diffs with a different view-port size for components containing media queries
 * avoid duplicating tests unnecessarily (i.e. don't need to duplicate every test at every breakpoint)
 * always use `deviceScaleFactor: 2`
@@ -238,6 +242,7 @@ The second approach involves navigating the page using Puppeteer's `goto` API, p
 ```
 
 ***Tips:***
+
 * avoid duplicating tests unnecessarily (i.e. don't need to perform every test in both LTR and RTL)
 
 #### Animations
@@ -253,12 +258,13 @@ Animations (CSS key-frame animations or transitions) in components can lead to f
 }
 ```
 
-Alternatively, visual-diff tests can wait for `transitionend` and `animationend` events.  However, this is not recommended becuase:
+Alternatively, visual-diff tests can wait for `transitionend` and `animationend` events.  However, this is not recommended because:
+
 * these events are not composed and requires tests having knowledge of component internals
 * these events may be dispatched more than once when multiple properties are animated
 * waiting for animations makes the tests run slower
 
-#### Shaow Root Piercing
+#### Shadow Root Piercing
 
 Often you want use a CSS selector and not have to chain calls to `shadowRoot` and `querySelector`. By enabling shadow root piercing you can simply use any of the puppeteer CSS selector functions, prefixing the CSS selector with `shadow/` to simplify usage of CSS selectors.
 
@@ -339,26 +345,31 @@ The action will handle installation and running the tests, as well as automatica
 ### Locally
 
 First, generate goldens using the `--golden` arg before making changes.
+
 ```shell
 mocha './test/**/*.visual-diff.js' -t 10000 --golden
 ```
 
 Make desired code changes, then run the tests to compare.
+
 ```shell
 mocha './test/**/*.visual-diff.js' -t 10000
 ```
 
 Because of the difference in local and CI environments, you can't commit the goldens you create locally.  This workflow is only to help troubleshoot and write new tests.  You will probably want to add the following to your `.gitignore` file:
-```
+
+```text
 <path_to_test>/test/screenshots/current/
 <path_to_test>/test/screenshots/golden/
 ```
 
 ***Tips:***
+
 * specify a longer Mocha timeout (while a screenshot is worth a 1000 tests, each screenshot is slower compared to a typical  unit test)
 * use Mocha's grep option to run a subset locally (i.e. `mocha './test/**/*.visual-diff.js' -t 10000 -- -g some-pattern`)
 
 ***Troubleshooting:***
+
 * The visual-diff tests require using a **non-Admin** terminal to run the tests - otherwise, Chromium does not navigate to the `html` test page
 * To see what a test is doing to help you debug issues, you can replace the `browser = await puppeteer.launch();` line in the `js` file with `browser = await puppeteer.launch({ headless: false });` locally
 
@@ -371,11 +382,13 @@ The [sematic-release GitHub Action](https://github.com/BrightspaceUI/actions/tre
 ### Version Changes
 
 All version changes should obey [semantic versioning](https://semver.org/) rules:
+
 1. **MAJOR** version when you make incompatible API changes,
 2. **MINOR** version when you add functionality in a backwards compatible manner, and
 3. **PATCH** version when you make backwards compatible bug fixes.
 
 The next version number will be determined from the commit messages since the previous release. Our semantic-release configuration uses the [Angular convention](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular) when analyzing commits:
+
 * Commits which are prefixed with `fix:` or `perf:` will trigger a `patch` release. Example: `fix: validate input before using`
 * Commits which are prefixed with `feat:` will trigger a `minor` release. Example: `feat: add toggle() method`
 * To trigger a MAJOR release, include `BREAKING CHANGE:` with a space or two newlines in the footer of the commit message
@@ -386,6 +399,7 @@ To revert a change, add the `revert:` prefix to the original commit message. Thi
 ### Releases
 
 When a release is triggered, it will:
+
 * Update the version in `package.json`
 * Tag the commit
 * Create a GitHub release (including release notes)
@@ -398,6 +412,7 @@ Occasionally you'll want to backport a feature or bug fix to an older release. `
 Maintenance branch names should be of the form: `+([0-9])?(.{+([0-9]),x}).x`.
 
 Regular expressions are complicated, but this essentially means branch names should look like:
+
 * `1.15.x` for patch releases on top of the `1.15` release (after version `1.16` exists)
 * `2.x` for feature releases on top of the `2` release (after version `3` exists)
 

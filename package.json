@@ -31,6 +31,7 @@
     "eslint-plugin-import": "^2",
     "eslint-plugin-lit": "^1",
     "eslint-plugin-sort-class-members": "^1",
+    "lit": "^2",
     "mocha": "^10",
     "puppeteer": "^19"
   },
@@ -45,6 +46,7 @@
     "chalk": "^5",
     "pixelmatch": "^5",
     "pngjs": "^6",
+    "query-selector-shadow-dom": "^1",
     "yargs": "^17"
   }
 }

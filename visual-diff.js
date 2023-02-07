@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import createPage from './helpers/createPage.js';
 import disableAnimations from './helpers/disableAnimations.js';
+import enableShadowRootPiercing from './helpers/enableShadowRootPiercing.js';
 import { expect } from 'chai';
 import { FileHelper } from './file-helper.js';
 import getRect from './helpers/getRect.js';
@@ -75,12 +76,17 @@ export default class VisualDiff {
 		this.disableAnimations = disableAnimations;
 		this.getRect = getRect;
 		this.resetFocus = resetFocus;
+		this.enableShadowRootPiercing = enableShadowRootPiercing;
 
 		this._results = [];
 		this._hasTestFailures = false;
 		this._fs = new FileHelper(name, `${dir}/screenshots`, _isCI);
 		this._dpr = options && options.dpr ? options.dpr : 2;
 		this._tolerance = options && options.tolerance ? options.tolerance : 0;
+
+		if (options && options.shadowRootPiercing) {
+			enableShadowRootPiercing();
+		}
 
 		let currentTarget, goldenTarget;
 

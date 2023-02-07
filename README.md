@@ -258,13 +258,51 @@ Alternatively, visual-diff tests can wait for `transitionend` and `animationend`
 * these events may be dispatched more than once when multiple properties are animated
 * waiting for animations makes the tests run slower
 
+#### Shaow Root Piercing
+
+Often you want use a CSS selector and not have to chain calls to `shadowRoot` and `querySelector`. By enabling shadow root piercing you can simply use any of the puppeteer CSS selector functions, prefixing the CSS selector with `shadow/` to simplify usage of CSS selectors.
+
+```js
+import puppeteer from 'puppeteer';
+import { enableShadowRootPiercing, focus, VisualDiff, } from '@brightspace-ui/visual-diff';
+
+describe('d2l-button-icon', function() {
+
+  const visualDiff = new VisualDiff('button-icon', import.meta.url);
+
+  let browser, page;
+
+  before(async() => {
+    enableShadowRootPiercing();
+    browser = await puppeteer.launch();
+    page = await visualDiff.createPage(browser);
+    await page.goto(
+      `${visualDiff.getBaseUrl()}/path/to/component/button-icon.visual-diff.html`,
+      {waitUntil: ['networkidle0', 'load']}
+    );
+    await page.bringToFront();
+  });
+
+  it('normal', async function() {
+    const buttonHandle = await page.waitForSelector(
+      `shadow/#simple > d2l-some-component > d2l-button-icon`,
+      { visible: true }
+    );
+    buttonHandle.click();
+    const rect = await visualDiff.getRect(page, '#simple');
+    await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
+  });
+
+});
+```
+
 #### API
 
 ```js
 import { createPage, focus, getRect, oneEvent, resetFocus, VisualDiff } from '@brightspace-ui/visual-diff';
 
 // creates a browser page with reduced motion;
-// optional options to override default 800x800px dimensions (ex. { viewport: { width: 700, height: 400 } })
+// optional options to override default 800x800px dimensions (ex. { viewport: { width: 700, height: 400 } }) as well as shadow root piercing (ex. { shadowRootPiercing: true })
 await createPage(browser, options);
 
 // selects an element in the document's light-DOM and focuses it
@@ -279,6 +317,9 @@ await oneEvent(page, selector, name);
 
 // removes focus from current active element
 await resetFocus(page);
+
+// CSS selectors prefixed with `shadow/` will pierce through shadow roots. This needs to be done before creating a page
+enableShadowRootPiercing();
 
 // gets the base URL of the server (ex. http://localhost:8000)
 visualDiff.getBaseUrl();

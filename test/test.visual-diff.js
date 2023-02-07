@@ -4,7 +4,7 @@ import VisualDiff from '../visual-diff.js';
 
 describe('visual-diff', function() {
 
-	const visualDiff = new VisualDiff('visual-diff', import.meta.url);
+	const visualDiff = new VisualDiff('visual-diff', import.meta.url, { shadowRootPiercing: true });
 
 	let browser, page;
 
@@ -59,6 +59,15 @@ describe('visual-diff', function() {
 		}
 		const rect = await visualDiff.getRect(page, '#different-allowed');
 		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect }, { allowedPixels: 24 });
+	});
+
+	it('element-matches-shadow-root-piercing', async function() {
+		await page.$eval(
+			'shadow/#shadow-root-piercing > d2l-test-component-2 > div',
+			async function(element) { element.textContent = 'This is a shadow root piercing test'; }
+		);
+		const rect = await visualDiff.getRect(page, '#shadow-root-piercing');
+		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
 	});
 
 });

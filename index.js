@@ -5,4 +5,5 @@ export { default as focus } from './helpers/focus.js';
 export { default as getRect } from './helpers/getRect.js';
 export { default as oneEvent } from './helpers/oneEvent.js';
 export { default as resetFocus } from './helpers/resetFocus.js';
+export { default as enableShadowRootPiercing } from './helpers/enableShadowRootPiercing.js';
 export { VisualDiff as VisualDiff };

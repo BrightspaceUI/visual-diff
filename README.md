@@ -268,12 +268,11 @@ import { enableShadowRootPiercing, focus, VisualDiff, } from '@brightspace-ui/vi
 
 describe('d2l-button-icon', function() {
 
-  const visualDiff = new VisualDiff('button-icon', import.meta.url);
+  const visualDiff = new VisualDiff('button-icon', import.meta.url, { shadowRootPiercing: true });
 
   let browser, page;
 
   before(async() => {
-    enableShadowRootPiercing();
     browser = await puppeteer.launch();
     page = await visualDiff.createPage(browser);
     await page.goto(

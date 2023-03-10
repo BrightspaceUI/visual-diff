@@ -6,3 +6,10 @@ export default function focus(page, selector) {
 		});
 	});
 }
+
+export async function focusWithKeyboard(page, selector) {
+	await page.keyboard.press('Tab');
+	await page.$eval(selector, (elem) => {
+		elem.focus({ focusVisible: true });
+	});
+}

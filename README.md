@@ -61,7 +61,7 @@ Create a `<my-element>.visual-diff.js` file containing the tests, using a ***uni
 
 ```js
 import puppeteer from 'puppeteer';
-import { focus, VisualDiff } from '@brightspace-ui/visual-diff';
+import { focusWithKeyboard, VisualDiff } from '@brightspace-ui/visual-diff';
 
 describe('d2l-button-icon', function() {
 
@@ -89,7 +89,7 @@ describe('d2l-button-icon', function() {
   });
 
   it('focus', async function() {
-    await focus(page, '#simple');
+    await focusWithKeyboard(page, '#simple');
     const rect = await visualDiff.getRect(page, '#simple');
     await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
   });
@@ -269,6 +269,10 @@ await createPage(browser, options);
 
 // selects an element in the document's light-DOM and focuses it
 await focus(page, selector);
+
+// selects an element in the document's light-DOM and focuses it using the keyboard,
+// which will trigger the :focus-visible pseudo-class
+await focusWithKeyboard(page, selector);
 
 // selects an element in the document's light-DOM and gets a rect object for use with screenshotAndCompare (ex. { x: 50, y: 50, width: 200, height: 100 });
 // optional margin default is 10px

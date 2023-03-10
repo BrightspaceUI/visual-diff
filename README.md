@@ -271,7 +271,7 @@ await createPage(browser, options);
 await focus(page, selector);
 
 // selects an element in the document's light-DOM and focuses it using the keyboard,
-// which will trigger the :focus-visible (but not :focus) pseudo-class
+// which will trigger the :focus-visible and :focus pseudo-classes
 await focusWithKeyboard(page, selector);
 
 // selects an element in the document's light-DOM and focuses it using the mouse,

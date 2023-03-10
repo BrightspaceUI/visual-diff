@@ -1,3 +1,5 @@
+import { default as resetFocus } from './resetFocus.js';
+
 export default function focus(page, selector) {
 	return page.$eval(selector, elem => {
 		return new Promise(resolve => {
@@ -13,16 +15,6 @@ export async function focusWithKeyboard(page, selector) {
 }
 
 export async function focusWithMouse(page, selector) {
-	await page.evaluate(() => {
-		let elem = document.querySelector('#vd-focus');
-		if (!elem) {
-			elem = document.createElement('button');
-			elem.id = 'vd-focus';
-			elem.innerHTML = 'reset focus';
-			elem.style.opacity = 0;
-			document.body.insertBefore(elem, document.body.firstChild);
-		}
-	});
-	await page.click('#vd-focus');
+	await resetFocus(page);
 	await page.$eval(selector, elem => elem.focus());
 }

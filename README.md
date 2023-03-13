@@ -270,13 +270,17 @@ await createPage(browser, options);
 // selects an element in the document's light-DOM and focuses it
 await focus(page, selector);
 
-// selects an element in the document's light-DOM and focuses it using the keyboard,
-// which will trigger the :focus-visible and :focus pseudo-classes
-await focusWithKeyboard(page, selector);
+// selects an element in the document's light-DOM, optionally searches
+// that element's (and subsequent elements') shadow root and
+// focuses on the resulting element using the keyboard,
+// triggering the :focus-visible and :focus pseudo-classes
+await focusWithKeyboard(page, selectors);
 
-// selects an element in the document's light-DOM and focuses it using the mouse,
-// which will trigger the :focus (but not :focus-visible) pseudo-class
-await focusWithMouse(page, selector);
+// selects an element in the document's light-DOM, optionally searches
+// that element's (and subsequent elements') shadow root and
+// focuses on the resulting element using the mouse,
+// triggering the :focus (but not :focus-visible) pseudo-class
+await focusWithMouse(page, selectors);
 
 // selects an element in the document's light-DOM and gets a rect object for use with screenshotAndCompare (ex. { x: 50, y: 50, width: 200, height: 100 });
 // optional margin default is 10px

@@ -26,5 +26,5 @@ export async function focusWithMouse(page, selectors) {
 	await page.$eval(first, (elem, selectors) => {
 		selectors.forEach(selector => elem = elem.shadowRoot.querySelector(selector));
 		elem.focus();
-	});
+	}, selectors);
 }

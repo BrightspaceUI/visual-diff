@@ -9,12 +9,22 @@ export default function focus(page, selector) {
 	});
 }
 
-export async function focusWithKeyboard(page, selector) {
+export async function focusWithKeyboard(page, selectors) {
+	selectors = [].concat(selectors);
 	await page.keyboard.press('Tab');
-	await page.$eval(selector, elem => elem.focus({ focusVisible: true }));
+	const first = selectors.shift();
+	await page.$eval(first, (elem, selectors) => {
+		selectors.forEach(selector => elem = elem.shadowRoot.querySelector(selector));
+		elem.focus({ focusVisible: true });
+	}, selectors);
 }
 
-export async function focusWithMouse(page, selector) {
+export async function focusWithMouse(page, selectors) {
+	selectors = [].concat(selectors);
 	await resetFocus(page);
-	await page.$eval(selector, elem => elem.focus());
+	const first = selectors.shift();
+	await page.$eval(first, (elem, selectors) => {
+		selectors.forEach(selector => elem = elem.shadowRoot.querySelector(selector));
+		elem.focus();
+	});
 }

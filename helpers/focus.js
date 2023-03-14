@@ -11,7 +11,7 @@ export default function focus(page, selector) {
 
 export async function focusWithKeyboard(page, selectors) {
 	selectors = [].concat(selectors);
-	await page.keyboard.press('Tab');
+	await page.keyboard.press('Cancel');
 	const first = selectors.shift();
 	await page.$eval(first, (elem, selectors) => {
 		selectors.forEach(selector => elem = elem.shadowRoot.querySelector(selector));

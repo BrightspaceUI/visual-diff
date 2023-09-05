@@ -187,7 +187,7 @@ export default class VisualDiff {
 			this._updateGolden = true;
 		}
 
-		if (isPass || (tryNum === _numTries) || _isLocalGoldenUpdate) {
+		if (isPass || (tryNum === _numTries) || _isLocalGoldenUpdate || !goldenImage) {
 			if (this._updateGolden && !_isLocalTestRun) {
 				this._hasTestFailures = true;
 				const result = await this._fs.updateGolden(name);

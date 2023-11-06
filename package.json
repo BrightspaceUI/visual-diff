@@ -39,7 +39,7 @@
     "puppeteer": "^20"
   },
   "dependencies": {
-    "@web/dev-server": "^0.3",
+    "@web/dev-server": "^0.4",
     "aws-sdk": "^2",
     "chai": "^4",
     "chalk": "^5",

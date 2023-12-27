@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import puppeteer from 'puppeteer';
 import VisualDiff from '../visual-diff.js';
 
-describe('visual-diff', function() {
+describe('visual-diff', () => {
 
 	const visualDiff = new VisualDiff('visual-diff', import.meta.url);
 

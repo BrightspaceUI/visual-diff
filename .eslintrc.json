@@ -1,7 +1,9 @@
 {
-  "extends": "brightspace/wct-lit-config",
+  "extends": "brightspace/testing-config",
+  "env": {
+    "node": true
+  },
   "rules": {
-    "no-console": 0,
     "prefer-template": 0
   }
 }

@@ -26,11 +26,7 @@
     "@babel/core": "^7",
     "@babel/eslint-parser": "^7",
     "eslint": "^8",
-    "eslint-config-brightspace": "^0.25",
-    "eslint-plugin-html": "^7",
-    "eslint-plugin-import": "^2",
-    "eslint-plugin-lit": "^1",
-    "eslint-plugin-sort-class-members": "^1",
+    "eslint-config-brightspace": "^1.0",
     "mocha": "^10",
     "puppeteer": "^20"
   },

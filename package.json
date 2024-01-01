@@ -37,7 +37,7 @@
   "dependencies": {
     "@web/dev-server": "^0.3",
     "aws-sdk": "^2",
-    "chai": "^4",
+    "chai": "^5",
     "chalk": "^5",
     "pixelmatch": "^5",
     "pngjs": "^7",

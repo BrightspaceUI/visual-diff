@@ -28,11 +28,11 @@
     "eslint": "^8",
     "eslint-config-brightspace": "^1.0",
     "mocha": "^10",
-    "puppeteer": "^20"
+    "puppeteer": "^22"
   },
   "peerDependencies": {
     "mocha": "^10",
-    "puppeteer": "^20"
+    "puppeteer": "^22"
   },
   "dependencies": {
     "@web/dev-server": "^0.3",
